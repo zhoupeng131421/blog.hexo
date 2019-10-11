@@ -4,15 +4,11 @@ title: hexo with jenkins
 
 Hexo没有后台管理程序，网络上基本上都是讲得通过 depoly 的，换台电脑如果没有hexo的node环境，就得远程服务器vim更改，甚是麻烦。随用Jenkins自动下载GitHub中hexo所有文件。
 
-# I. Summary
-- Jenkins java install & config
-- nodejs hexo install & config
-- nginx install & config
-- *vital config*
+[toc]
 
-# II. Jenkins install
+# I. Jenkins install
 
-## 2.1 updata git
+## 1.1 updata git
 >yum源git版本比较老，所以用源码方式安装
 
 1. 安装依赖包
@@ -40,7 +36,7 @@ vim /etc/profile:
 ```
 refresh PATH:`source /etc/profile`
 
-## 2.2 java 环境安装
+## 1.2 java 环境安装
 > 因为Jenkins依赖Java环境，所以必须安装Java环境
 
 ```shell
@@ -49,7 +45,7 @@ sudo yum install java-1.8.0-openjdk.x86_64  #我选择了这个版本
 java -version
 ```
 
-## 2.3 Jenkins download & install
+## 1.3 Jenkins download & install
 ```shell
 yum install maven
 mvn -v
@@ -70,14 +66,14 @@ sudo service jenkins start  # start server
 - install github Issues plugin
 - instlal github sqs build plugin
 
-# III. Hexo install
-## 3.1 nodejs install
+# II. Hexo install
+## 2.1 nodejs install
 ``` shell
 sudo yum install nodejs
 sudo yum install npm
 ```
 
-## 3.2 hexo install
+## 2.2 hexo install
 ```shell
 npm install hexo-cli -g
 
@@ -98,7 +94,7 @@ hexo g
 hexo c
 ```
 
-# IV. nginx install
+# III. nginx install
 ```shell
 sodu yum install nginx
 
@@ -113,26 +109,26 @@ sudo systemctl enable nginx   # 开机启动nginx server
 sudo systemctl start nginx
 ```
 
-# V. jenkins and github config
+# IV. jenkins and github config
 
-## 5.1 github config
+## 4.1 github config
 
-### 5.1.1 generate token
+### 4.1.1 generate token
 - github -> setting -> developer setting -> generate new token
 - 权限全选，然后生成secret text，并保存.
 
-### 5.1.2 webhooks config
+### 4.1.2 webhooks config
 - 进入指定的项目仓库 -> setting -> WebHooks&Service -> add webhook
 - 填写jenkins服务器地址: `http://ip:port/github-webhook/`
 - 选中 `just the push event` and `Active`
 
-## 5.2 jenkins config
+## 4.2 jenkins config
 
-### 5.2.1 global config
+### 4.2.1 global config
 - manage jenkins -> configure system -> GitHub 服务器
 - 添加凭据，Kind:`Secret text`，Secret:`保存的github token secret text`
 
-### 5.2.2 tools config
+### 4.2.2 tools config
 - manage jenkins -> global tool configuration ->
 - jdk:
 ```shell
@@ -150,7 +146,7 @@ Name: maven
 MAVEN_HOME: /usr/share/maven
 ```
 
-### 5.2.3 new Item
+### 4.2.3 new Item
 > 项目类型freestyle
 
 - General -> GitHub项目: `https://github.com/xxx/xxx`
