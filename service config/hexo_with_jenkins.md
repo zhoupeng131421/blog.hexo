@@ -1,9 +1,10 @@
 ---
 title: hexo with jenkins
-tags: jenkins
-tags: hexo
-tags: nginx
-tags: github
+tags:
+  - jenkins
+  - hexo
+  - nginx
+  - github
 categories: 服务配置
 ---
 
