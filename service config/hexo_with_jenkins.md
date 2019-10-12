@@ -1,6 +1,6 @@
 ---
 title: hexo with jenkins
-tags:
+tags: 
   - jenkins
   - hexo
   - nginx
