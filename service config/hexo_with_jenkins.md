@@ -1,5 +1,7 @@
 ---
 title: hexo with jenkins
+tags: jenkins hexo nginx github
+categories: 服务配置
 ---
 
 Hexo没有后台管理程序，网络上基本上都是讲得通过 depoly 的，换台电脑如果没有hexo的node环境，就得远程服务器vim更改，甚是麻烦。随用Jenkins自动下载GitHub中hexo所有文件。
