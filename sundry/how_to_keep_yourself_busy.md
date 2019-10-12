@@ -1,5 +1,7 @@
 ---
 title: How to keep yourself busy
+tags: busy
+categories: 生活
 ---
 
 ## 1.按时早起，别懒床
@@ -27,4 +29,3 @@ title: How to keep yourself busy
 ## 7.保持年轻的心态
 - 心态年轻的人，会积极尝试新鲜事物，总是带着好奇眼光去学每一样新东西。
 - 在他们身上你也许能看到眼角眉梢的皱纹，但更让你目不转睛的是他那神采奕奕的面容和热爱生活的精神状态。
-
