@@ -1,5 +1,7 @@
 ---
 title: windows系统下git环境的配置
+tags: windows git
+categories: 服务配置
 ---
 
 # 安装
