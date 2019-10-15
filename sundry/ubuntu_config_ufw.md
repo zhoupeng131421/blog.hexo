@@ -1,5 +1,6 @@
 ---
 title: ubuntu config ufw
+date: 2019-10-15
 tags: ubuntu ufw
 categories: 随笔
 ---

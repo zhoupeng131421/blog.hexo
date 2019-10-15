@@ -1,5 +1,6 @@
 ---
 title: Change root user for ubuntu18
+date: 2019-10-15
 tags: [root, ubuntu]
 categories: 随笔
 ---

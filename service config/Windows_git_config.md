@@ -1,5 +1,6 @@
 ---
 title: windows系统下git环境的配置
+date: 2019-10-11
 tags: [windows, git, github]
 categories: 服务配置
 ---

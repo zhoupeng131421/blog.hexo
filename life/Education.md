@@ -1,5 +1,6 @@
 ---
 title: 女儿：底线教育；儿子：阳光教育
+date: 2019-10-10
 tags: 教育
 categories: 生活
 ---

@@ -1,5 +1,6 @@
 ---
 title: ubuntu config samba server
+date: 2019-10-15
 tags: [ubuntu, samba]
 categories: 服务配置
 ---

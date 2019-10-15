@@ -1,5 +1,6 @@
 ---
 title: rsync command
+date: 2019-10-15
 tags: rsync
 categories: 随笔
 ---

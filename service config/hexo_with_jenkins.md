@@ -1,5 +1,6 @@
 ---
 title: hexo with jenkins
+date: 2019-10-12
 tags: [jenkins, hexo, nginx, github, git]
 categories: 服务配置
 ---

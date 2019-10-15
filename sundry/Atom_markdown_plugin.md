@@ -1,5 +1,6 @@
 ---
 title: Atom markdown 插件
+date: 2019-10-15
 tags: [atom, markdwon]
 categories: 随笔
 ---

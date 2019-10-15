@@ -1,5 +1,6 @@
 ---
 title: Centos install leanote
+date: 2019-10-15
 tags: [Centos, leanote]
 categories: 服务配置
 ---
