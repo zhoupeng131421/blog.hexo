@@ -130,20 +130,18 @@ sudo systemctl start nginx
 
 ### 4.2.2 tools config
 - manage jenkins -> global tool configuration ->
-- jdk:
 ```shell
-Name: jdk8
-JAVA_HOME: /usr/lib/jvm/java-1.8.0-openjdk/
-```
-- git:
-```shell
-Name: Default
-Path to Git executable: /usr/local/git/bin/git	#根据实际安装位置配置
-```
-- maven:
-```shell
-Name: maven
-MAVEN_HOME: /usr/share/maven
+JDK:
+  Name: jdk8
+  JAVA_HOME: /usr/lib/jvm/java-1.8.0-openjdk/
+
+git:
+  Name: Default
+  Path to Git executable: /usr/local/git/bin/git	#根据实际安装位置配置
+
+maven:
+  Name: maven
+  MAVEN_HOME: /usr/share/maven
 ```
 
 ### 4.2.3 new Item
