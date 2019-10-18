@@ -1,5 +1,6 @@
 ---
 title: How to keep yourself busy
+date: 2019-10-10
 tags: busy
 categories: 生活
 ---

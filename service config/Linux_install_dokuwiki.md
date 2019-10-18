@@ -1,5 +1,6 @@
 ---
 title: linux install dokuwiki
+date: 2019-10-15
 tags: [linux, dokuwiki]
 categories: 服务配置
 ---

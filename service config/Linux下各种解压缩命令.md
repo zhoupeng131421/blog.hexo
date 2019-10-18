@@ -1,5 +1,6 @@
 ---
 title: Linux下各种解压缩命令
+date: 2019-10-11
 tags: [linux, tar]
 categories: 服务配置
 ---

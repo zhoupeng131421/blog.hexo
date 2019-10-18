@@ -1,5 +1,6 @@
 ---
 title: ubuntu config tftp server
+date: 2019-10-15
 tags: [ubuntu tftp]
 categories: 服务配置
 ---

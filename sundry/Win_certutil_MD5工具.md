@@ -1,5 +1,6 @@
 ---
 title: Window 下 certutil 工具查看文件 MD5 值
+date: 2019-10-15
 tags: [windows, certutil, MD5]
 categories: 随笔
 ---
