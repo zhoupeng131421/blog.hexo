@@ -5,7 +5,7 @@ tags: [git]
 categories: 工具
 ---
 
-# updata git
+# UPDATE GIT
 >yum源git版本比较老，所以用源码方式安装
 
 1. 安装依赖包
@@ -105,6 +105,7 @@ header是必须的，body 和 footer可以省略。任何一行不得超过72个
   |refactor|重构(即不是新增功能，也不是修改bug的代码变动)|
   |test|增加测试|
   |chore|构建过程或辅助工具的变动|
+
   如果type为feat和fix，则该 commit 将肯定出现在 Change log 之中。其他情况（docs、chore、style、refactor、test）由你决定，要不要放入 Change log，建议是不要。
 
 - scope: 用于说明commit影响的范围，比如数据层、控制层、视图层等
