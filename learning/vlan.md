@@ -67,7 +67,7 @@ categories: [Learning, vlan]
 
 - 使用支持汇聚链接的路由器（当使用一条网线连接路由器与交换机、进行VLAN间路由时，需要用到汇聚链接。）
 - 数据通路： 发送方 -- 交换机 -- 路由器 -- 交换机 -- 接收方
-![](../../assets/vlan/diff_vlan_com.png)
+![](/assets/vlan/diff_vlan_com.png)
 
 #### 三层交换机
 > 如果使用路由器进行VLAN间路由的话，随着VLAN之间流量的不断增加，很可能导致路由器成为整个网络的瓶颈。
@@ -77,6 +77,6 @@ categories: [Learning, vlan]
 > 就VLAN间路由而言，流量会集中到路由器和交换机互联的汇聚链路部分，这一部分尤其特别容易成为速度瓶颈。
 
 - 三层交换机，本质上就是“带有路由功能的（二层）交换机”
-![](../../assets/vlan/3layer_switch.png)
+![](/assets/vlan/3layer_switch.png)
 - 数据传输流程：发送方 -- 交换模块 -- 路由模块 -- 交换模块 -- 接收方
-![](../../assets/vlan/interplay_3layer_switch.png)
+![](/assets/vlan/interplay_3layer_switch.png)
