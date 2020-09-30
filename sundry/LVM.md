@@ -20,7 +20,7 @@ LVM是Logical Volume Manager逻辑卷管理,包括分配磁盘,以及对逻辑�
 - Logicalvolume/LV 逻辑卷: 就是从VG中划分的逻辑分区,在逻辑卷上可以创建文件系统(比如/home,/usr等)
 - physical extent/PE: 每一个物理卷被划分为称为PE(PhysicalExtents)的基本单元，具有唯一编号的PE是可以被LVM寻址的最小单元。PE的大小是可配置的，默认为4MB。
 - Logical extent/LE: 逻辑卷也被划分为被称为LE(LogicalExtents) 的可被寻址的基本单位。在同一个卷组中，LE的大小和PE是相同的，并且一一对应。
-- ![](/assets/lvm/lvm_structure.png)
+- ![](./LVM/lvm_structure.png)
 ## Note
 - 多个磁盘/分区/raid-->多个物理卷PV-->合成卷组VG-->从VG划分出逻辑卷LV-->格式化LV，挂载使用
 - LVM是软件的卷管理方式，RAID是磁盘管理的方法。对于重要的数据，用RAID保护物理硬盘不会因为故障而中断业务，再用LVM来实现对卷的良性管理，更好的利用硬盘资源。
