@@ -1,3 +1,10 @@
+---
+title: OpenStack issue
+date: 2020-10-21
+tags: [OpenStack]
+categories: 服务配置
+---
+
 ### openstack volume downloading
 - Openstack虚拟机磁盘创建超时
 - 1. 增大尝试次数：
