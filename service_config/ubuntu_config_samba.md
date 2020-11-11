@@ -45,7 +45,7 @@ sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
 `sudo /etc/init.d/samba restart`
 - 增加用户管理:
 ```shell
-sudo useradd smbUser  #添加Linux用户
+sudo useradd -m smbUser -d /home/smbUser -s /bin/bash #添加Linux用户
 sudo smbpasswd -a smbUser  #smbpasswd
 ```
 smb.conf 增加配置:
@@ -59,3 +59,8 @@ smb.conf 增加配置:
    writable = yes
 ```
 - restart server
+
+
+# Linux mount
+- mount -o username=xxx,password=xxx //x.x.x.x/xxx /xxx/xxx
+- auto mount: `vim /etc/fstab`: `//x.x.x.x/xxx /xxx/xxx cifs user=xxx,pass=xxx,uid=xxx,gid=xxx,_netdev 0 0`
