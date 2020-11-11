@@ -95,6 +95,25 @@ hexo g
 hexo c
 ```
 
+## theme config
+> next 主题增加about tags categories等
+
+- vim theme/next/_config
+```shell
+menu:
+  about: /about/ || user
+  tags: /tags/ || tags
+  categories: /categories/ || tags
+  ...
+```
+- hexo new page "about"
+- hexo new page "tags"
+- hexo new page "categories"
+- vim source/xxx/index.md
+```shell
+type: "xxx"
+```
+
 # III. nginx install
 ```shell
 sodu yum install nginx
