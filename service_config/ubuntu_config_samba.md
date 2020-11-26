@@ -11,8 +11,6 @@ categories: 服务配置
 # 二、系统基本服务配置
 
 ## NTFS挂载
-- 查看所有磁盘分区 sudo fdisk -l
-![](editor:1568639922306.png)
 - mount命令挂载到/mnt/HomeNas/目录各个子目录:
 ``` shell
 sudo mount -t ntfs /dev/sda3 /mnt/HomeNas/doc -o iocharset=utf8,umask=0
@@ -46,6 +44,7 @@ sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bak
 - 增加用户管理:
 ```shell
 sudo useradd -m smbUser -d /home/smbUser -s /bin/bash #添加Linux用户
+sudo passwd smbUser
 sudo smbpasswd -a smbUser  #smbpasswd
 ```
 smb.conf 增加配置:
@@ -61,6 +60,11 @@ smb.conf 增加配置:
 - restart server
 
 
-# Linux mount
+# mount
+## Linux system
 - mount -o username=xxx,password=xxx //x.x.x.x/xxx /xxx/xxx
 - auto mount: `vim /etc/fstab`: `//x.x.x.x/xxx /xxx/xxx cifs user=xxx,pass=xxx,uid=xxx,gid=xxx,_netdev 0 0`
+
+## windows system
+- `control panel` --> `Credential Manager` --> `Windows Credentials` --> `Add a Windows credential` --> edit the server info: `ip/host, username, password`
+- 打开我的电脑，在左上角的 Computer 栏中找到 `Add a network location` or `map network driver`, 输入远程samba路径 `\\x.x.x.x\xxx` 确认即可
