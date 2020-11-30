@@ -19,7 +19,7 @@ categories: Learning
 - 系统视图下输入特定命令，进入相应功能视图，完成功能配置。
 - `return` 可以从任意视图返回用户视图
 
-### uodo
+### undo
 - 可以用`undo`取消某个设定：
 ```shell
   info-center enable
