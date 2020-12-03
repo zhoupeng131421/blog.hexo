@@ -62,8 +62,8 @@ smb.conf 增加配置:
 
 # mount
 ## Linux system
-- mount -o username=xxx,password=xxx //x.x.x.x/xxx /xxx/xxx
-- auto mount: `vim /etc/fstab`: `//x.x.x.x/xxx /xxx/xxx cifs user=xxx,pass=xxx,uid=xxx,gid=xxx,_netdev 0 0`
+- mount -o username=xxx,password=xxx //ip/port /xxx/xxx
+- auto mount: `vim /etc/fstab`: `//ip/port /xxx/xxx cifs user=xxx,pass=xxx,uid=xxx,gid=xxx,_netdev 0 0`
 
 ## windows system
 - `control panel` --> `Credential Manager` --> `Windows Credentials` --> `Add a Windows credential` --> edit the server info: `ip/host, username, password`
