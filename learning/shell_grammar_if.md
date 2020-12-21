@@ -65,6 +65,7 @@ fi
     - [...] || [...] 用OR来合并两个条件
     - [...] && [...] 用AND来合并两个条件
 - other conditions:
+    - [ -v string] 用于判断变量是否存在，即该变量是否已定义
     - [ -t FD ] 如果文件描述符 FD （默认值为1）打开且指向一个终端则返回为真
     - [ -o optionname ] 如果shell选项optionname开启则返回为真
 
