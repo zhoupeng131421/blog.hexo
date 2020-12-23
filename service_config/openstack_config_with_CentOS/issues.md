@@ -28,3 +28,13 @@ ubuntu
 ubuntu
 EOF
 ```
+
+### delete compute node
+- `openstack host list`
+- `openstack hypervisor list`
+- `mysql -p`
+    - `use nova;`
+    - `delete from nova.services where host="compute1";`
+    - `delete from compute_nodes where hypervisro_hostname="compute1";`
+    - `exit`
+- verify: `openstack host list`, `openstack hypervisor list`
