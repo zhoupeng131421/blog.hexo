@@ -1,5 +1,5 @@
 ---
-title: ubuntu config samba server
+title: CentOS config openLDAP server
 date: 2020-12-23
 tags: [ubuntu, LDAP]
 categories: 服务配置
