@@ -98,7 +98,7 @@ smb.conf 增加配置:
    - tar -xzvf libdes-4.04b.tar.gz
    - cd des/
    - make
-   - cp libdes.s ../
+   - cp libdes.a ../
    - cd ../../
 - vim conf.h
 ```shell
