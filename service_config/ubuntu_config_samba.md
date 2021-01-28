@@ -89,6 +89,13 @@ smb.conf 增加配置:
 - useradd xxx
 - passwd xxx
 - smbpasswd -a xxx
+
+## config samba server with firewalld and seLinux
+- sudo setsebool -P samba_enable_home_dirs=1
+- sudo firewall-cmd --permanent --add-service=samba
+- sudo firewall-cmd --permanent --add-service=http
+- sudo firewall-cmd --reload
+
 ## config changepassword
 - wget http://prdownloads.sourceforge.net/changepassword/changepassword-0.9.tar.gz
 - tar -xvzf changepassword-0.9.tar.gz

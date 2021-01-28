@@ -45,6 +45,9 @@ git config --global color.ui true
 
 # 常用命令
 ```shell
+git clone xxx
+git clone --recursive xxx # clone all submodules
+
 git branch -av
 git checkout branch -b local_branch
 
@@ -76,6 +79,12 @@ git log --pretty=oneline  #显示完整commit id
 git blame -L num xx.c   #查找xx.c中第num行的提交
 
 git cherry-pic xxx
+
+submoudle:
+  git submoudle add repository_add xxx  # add new submodule
+  vim .gitmodules # delete related submudle info
+  git rm --cached # delete related files
+  git submodule update --init --recursive # download submodules
 ```
 
 # GIT COMMIT 格式
