@@ -45,3 +45,11 @@ XXX ALL=(ALL:ALL) ALL
 - 删除`/etc/sudoers`文件中`ubuntu  ALL=(ALL:ALL) NOPASSWD: ALL`该行
 - 然后执行`sudo userdel ubuntu`
 - 删除`/home/ubuntu/`目录
+
+## ssh root login
+- sudo vim /etc/ssh/sshd-config
+```shell
+port=22
+PermitRootLogin prohibit-password --> PermitRootLogin yes
+```
+- sudo service sshd restart
