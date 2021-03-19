@@ -1,6 +1,6 @@
 ---
 title: ceph deploy with ansible
-date: 2019-3-9
+date: 2021-3-9
 tags: [ceph]
 categories: 服务配置
 ---

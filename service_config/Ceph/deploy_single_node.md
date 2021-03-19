@@ -1,6 +1,6 @@
 ---
 title: ceph deploy prepare
-date: 2019-3-3
+date: 2021-3-3
 tags: [ceph]
 categories: 服务配置
 ---

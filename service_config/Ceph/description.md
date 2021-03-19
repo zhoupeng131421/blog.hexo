@@ -1,6 +1,6 @@
 ---
 title: ceph Desc
-date: 2019-3-1
+date: 2021-3-1
 tags: [ceph]
 categories: 服务配置
 ---
