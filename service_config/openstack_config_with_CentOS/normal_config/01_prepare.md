@@ -6,6 +6,7 @@ categories: 服务配置
 ---
 
 ## prepare
+- apply to every node
 - `export http_porxy=http://x.x.x.x:xx`
 - `yum update`
 - `yum install net-tools`
@@ -55,6 +56,7 @@ ONBOOT=yes
     - `chronyc sources`
 
 ## install openstack client
+- apply every node
 - `yum install centos-release-openstack-stein`
 - `yum upgrade`
 - controller node:
@@ -62,6 +64,7 @@ ONBOOT=yes
     - `yum install openstack-selinux`
 
 ## SQL database
+- the database typically runs on the controller node
 - `yum install mariadb mariadb-server python2-PyMySQL`
 - `vim /etc/my.cnf.d/openstack.cnf`
 ```shell
@@ -79,6 +82,7 @@ character-set-server = utf8
 - `mysql_secure_installation`
 
 ## Message queue
+- The message queue service typically runs on the controller node
 - `yum install rabbitmq-server`
 - `systemctl enable rabbitmq-server.service`
 - `systemctl start rabbitmq-server.service`
@@ -86,12 +90,14 @@ character-set-server = utf8
 - access for openstack user: `rabbitmqctl set_permissions openstack ".*" ".*" ".*"`
 
 ## memcached
+- The memcached service typically runs on the controller node.
 - `yum install memcached python-memcached`
 - vim /etc/sysconfig/memcached: `OPTIONS="-l 127.0.0.1,::1,controller"`
 - `systemctl enable memcached.service`
 - `systemctl start memcached.service`
 
 ## etcd
+- The etcd service runs on the controller node.
 - `yum install etcd`
 - `vim /etc/etcd/etcd.conf`
 ```shell
