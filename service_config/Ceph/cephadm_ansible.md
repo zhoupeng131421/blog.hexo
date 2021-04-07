@@ -107,6 +107,9 @@ ceph-mon-03
 
 # cephadm install
 - ssh ceph-mon-01
+- ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ''
+- ssh-copy-id -i root@ceph-mon-02
+- ssh-copy-id -i root@ceph-mon-02
 - curl --silent --remote-name --location https://github.com/ceph/ceph/raw/octopus/src/cephadm/cephadm
 - chmod +x cephadm
 - ./cephadm add-repo --release octopus
@@ -141,6 +144,7 @@ ceph-mon-03
     - ceph orch host label add ceph-mon-02 mon
     - ceph orch host label add ceph-mon-03 mon
     - ceph orch host label add ceph-osd-01 osd
+- ceph config set mon public_network xxx.xxx.xxx.xxx/xx
 
 ## adding additional mons
 - ceph orch apply mon *<host1,host2,host3,...>*
@@ -246,3 +250,14 @@ docker.io/ceph/ceph:v15
 }
 ```
 - Deploy the daemon: `cephadm --image docker.io/ceph/ceph:v15 deploy --fsid b26a161c-86f1-11eb-a43b-c5f85b4bdf41 --name mgr.ceph-mon-01.smfvfd --config-json config-json.json`
+
+# command:
+- remove osd:
+  - ceph orch osd rm <osd_id(s)>
+  - ceph orch osd rm status
+- remove host:
+  - ceph orch host rm xxx
+  - ceph orch host ls
+- remove mds:
+  - ceph mds fail xxx
+  - ceph mds rm xxx
