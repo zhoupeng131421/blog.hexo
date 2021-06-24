@@ -73,7 +73,7 @@ keystone-manage bootstrap --bootstrap-password xxx \
 - apply to every controller node
 - httpd.conf:
     - `cp /etc/httpd/conf/httpd.conf{,.bak}`
-    - sed -i "s/#ServerName www.example.com:80/ServerName ${HOSTNAME}/" /etc/httpd/conf/httpd.conf
+    - `sed -i "s/#ServerName www.example.com:80/ServerName ${HOSTNAME}/" /etc/httpd/conf/httpd.conf`
 ```shell
 ##controller01
 sed -i "s/Listen\ 80/Listen\ 10.10.10.51:80/g" /etc/httpd/conf/httpd.conf
@@ -115,12 +115,12 @@ export OS_IDENTITY_API_VERSION=3
 export OS_IMAGE_API_VERSION=2
 EOF
 ```
-- source  ~/admin-openrc
-- scp -rp ~/admin-openrc openstack-controller02:~/
-- scp -rp ~/admin-openrc openstack-controller03:~/
+- `source  ~/admin-openrc`
+- `scp -rp ~/admin-openrc openstack-controller02:~/`
+- `scp -rp ~/admin-openrc openstack-controller03:~/`
 - verify:
-    - openstack domain list
-    - openstack token issue
+    - `openstack domain list`
+    - `openstack token issue`
 
 # create domain project user role
 - openstack domain create --description "An Example Domain" example
