@@ -31,61 +31,71 @@ vim /etc/profile:
   PATH=$PATH:/usr/local/git/bin
   export PATH
 ```
-refresh PATH:`source /etc/profile`
+- refresh PATH:`source /etc/profile`
 
 
 # 常用配置
-```shell
-git config --global user.name xxx
-git config --global user.email xxx
-git config --global core.quotepath false    #中文文件名乱码
-git config --global credential.helper manager #保存项目相关github 的用户名、密码 信息
-git config --global color.ui true
-```
+- `git config --global user.name xxx`
+- `git config --global user.email xxx`
+- `git config --global core.quotepath false` 中文文件名乱码
+- `git config --global credential.helper manager` 保存项目相关github 的用户名、密码 信息
+- `git config --global color.ui true`
+
 
 # 常用命令
-```shell
-git clone xxx
-git clone --recursive xxx # clone all submodules
+- `git clone xxx`
+- `git clone --recursive xxx` # clone all submodules
 
-git branch -av
-git checkout branch -b local_branch
+- `git branch -av`
+- `git checkout branch -b local_branch`
 
-git add xxx
-git commit -s   #commit中添加签名
-git commit -m "xxx"   #直接添加commit message
-git commit --amend  #追加提交，不增加commit id的情况下，将新增加代码添加到上一次commit id中
+- `git add xxx`
+- `git commit -s`   #commit中添加签名
+- `git commit -m "xxx"`   #直接添加commit message
+- `git commit --amend`  #追加提交，不增加commit id的情况下，将新增加代码添加到上一次commit id中
 
-git push dest src
+- `git push dest src`
+- `git push --force-with-lease dest src`
+  - 更安全的强制推送: 如果远端有其他人推送了新的提交，那么推送将被拒绝.
+  - 强烈建议强制推送前，检查是否覆盖别人的推送
 
-merge:
-  git checkout master
-  git merge develop   # merge develop to master
+- merge:
+  - `git checkout master`
+  - `git merge develop`   # merge develop to master
+  - `git merge`
+  - `git merge --no-ff`
+    - --no-ff可以保存之前的分支历史， git merge 不会显示feature，只保留单条分支记录。
+  - `git merge develop --squash`  #develop分支的commit message合并为一条
+  - `vim xxx`   #手动更改冲突的地方
+  - `git commit -s`       #add commit message
+  - `git push origin master`
 
-  # --no-ff可以保存之前的分支历史， git merge 不会显示feature，只保留单条分支记录。
-  git merge
-  git merge --no-ff
-  git merge develop --squash  #develop分支的commit message合并为一条
+- `git branch --set-upstream=origin/xxx xxx`  #本地分支关联远程分支
+- `git pull --rebase` #更新远程分支到本地，如果有冲突，git自动创建分支
+- `git reset HEAD`  #撤销commit
+- `git log --graph`   #查看分支情况
+- `git log --pretty=oneline`  #显示完整commit id
+- `git blame -L num xx.c`   #查找xx.c中第num行的提交
 
-  vim xxx   #手动更改冲突的地方
-  git commit -s       #add commit message
-  git push origin master
+- `git fetch`
+  - 将远程主机的最新内容拉到本地，用户在检查了以后决定是否合并到工作本机分支中。
+  - git pull
+    - 将远程主机的最新内容拉下来后直接合并
+  - `git pull = git fetch + git merge` # 这样可能会产生冲突，需要手动解决。
 
-git branch --set-upstream=origin/xxx xxx  #本地分支关联远程分支
-git pull --rebase #更新远程分支到本地，如果有冲突，git自动创建分支
-git reset HEAD  #撤销commit
-git log --graph   #查看分支情况
-git log --pretty=oneline  #显示完整commit id
-git blame -L num xx.c   #查找xx.c中第num行的提交
+- `git cherry-pic xxx`
 
-git cherry-pic xxx
+- submoudle:
+  - `git clone --recursive git@xxx`
+  - `git submoudle add repository_add xxx`  # add new submodule
+  - `vim .gitmodules` # delete related submudle info
+  - `git rm --cached` # delete related files
+  - `git submodule update --init --recursive` # download submodules
 
-submoudle:
-  git submoudle add repository_add xxx  # add new submodule
-  vim .gitmodules # delete related submudle info
-  git rm --cached # delete related files
-  git submodule update --init --recursive # download submodules
-```
+  - change submodule url
+    - `vim .gitmodule`  # modify related url addr
+    - `git submodule sync`
+    - `git submodule update --init`
 
 # GIT COMMIT 格式
 ## 格式化作用
