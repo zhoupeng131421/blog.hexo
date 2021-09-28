@@ -1,7 +1,7 @@
 ---
-title: OpenStack HA config with Ubuntu
+title: OpenStack HA config with CentOS8
 date: 2021-9-16
-tags: [OpenStack, HA, Ubuntu]
+tags: [OpenStack, HA]
 categories: 服务配置
 ---
 [toc]
