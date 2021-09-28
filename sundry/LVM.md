@@ -59,3 +59,7 @@ LVM是Logical Volume Manager逻辑卷管理,包括分配磁盘,以及对逻辑�
     #创建一个空闲空间80%大小的lv，并指定名字为lv_4(常用)
     lvcreate -l 80%Free -n lv_4 vg_1
     ```
+- `lvextend`
+    - -l 指定大小卷卷组比例
+    - `lvextend -l 100%FREE /dev/ubuntu-vg/ubuntu-lv`
+    - `resize2fs /dev/ubuntu-vg/ubuntu-lv`
