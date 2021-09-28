@@ -231,7 +231,7 @@ wsrep_sync_wait=1
 
 ## 2.3 set heartbeat check: `clustercheck`
 - all controller node: `wget -P /extend/shell/ https://raw.githubusercontent.com/olafz/percona-clustercheck/master/clustercheck`
-- vim /extend/shall/clustercheck:
+- vim /extend/shell/clustercheck:
 ```shell
 MYSQL_USERNAME="clustercheck"
 MYSQL_PASSWORD="123456"
@@ -239,12 +239,12 @@ MYSQL_HOST="localhost"
 MYSQL_PORT="3306"
 ...
 ```
-- chmod +x /extend/shall/clustercheck
+- chmod +x /extend/shell/clustercheck
 - mv /usr/bin/clustercheck /usr/bin/clustercheck.bak
-- cp /extend/shall/clustercheck /usr/bin
+- cp /extend/shell/clustercheck /usr/bin
 - create clusterchecker user in database:
     - mysql -uroot -p
-    - GRANT PROCESS ON *.* TO 'clustercheck'@'localhost' IDENTIFIED BY 'Zx*****';
+    - GRANT PROCESS ON *.* TO 'clustercheck'@'localhost' IDENTIFIED BY '123456';
     - flush privileges;
 - create heatbeat check file:
     - apply to all controller nodes
@@ -469,6 +469,9 @@ $ModLoad imudp
 $UDPServerRun 514
 $ModLoad imtcp
 $InputTCPServerRun 514
+local0.=info    -/var/log/haproxy/haproxy-info.log
+local0.=err     -/var/log/haproxy/haproxy-err.log
+local0.notice;local0.!=err      -/var/log/haproxy/haproxy-notice.log
 ```
 - systemctl restart rsyslog
 - cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
@@ -628,6 +631,16 @@ listen galera_cluster
   server openstack-controller01 10.10.10.51:8776 check inter 2000 rise 2 fall 5
   server openstack-controller02 10.10.10.52:8776 check inter 2000 rise 2 fall 5
   server openstack-controller03 10.10.10.53:8776 check inter 2000 rise 2 fall 5
+
+ listen cinder_volume
+  bind 10.10.10.69:9292
+  balance  source
+  option  tcpka
+  option  httpchk
+  option  tcplog
+  server openstack-controller01 10.10.10.51:9292 check inter 2000 rise 2 fall 5
+  server openstack-controller02 10.10.10.52:9292 check inter 2000 rise 2 fall 5
+  server openstack-controller03 10.10.10.53:9292 check inter 2000 rise 2 fall 5
 ```
 - scp /etc/haproxy/haproxy.cfg openstack-controller02:/etc/haproxy/haproxy.cfg
 - scp /etc/haproxy/haproxy.cfg openstack-controller03:/etc/haproxy/haproxy.cfg

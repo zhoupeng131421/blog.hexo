@@ -137,7 +137,7 @@ openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip 10.10.10.54
 openstack-config --set  /etc/nova/nova.conf DEFAULT use_neutron  true
 openstack-config --set  /etc/nova/nova.conf DEFAULT firewall_driver  nova.virt.firewall.NoopFirewallDriver
 openstack-config --set  /etc/nova/nova.conf api auth_strategy  keystone
-openstack-config --set /etc/nova/nova.conf  keystone_authtoken www_authenticate_uri  http://10.10.10.69:5000
+openstack-config --set  /etc/nova/nova.conf  keystone_authtoken www_authenticate_uri  http://10.10.10.69:5000
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_url  http://10.10.10.69:5000
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken memcached_servers  openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_type  password
@@ -146,7 +146,7 @@ openstack-config --set  /etc/nova/nova.conf keystone_authtoken user_domain_name 
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken project_name  service
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken username  nova
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken password  xxx
-openstack-config --set /etc/nova/nova.conf libvirt virt_type  qemu
+openstack-config --set  /etc/nova/nova.conf libvirt virt_type  qemu
 openstack-config --set  /etc/nova/nova.conf vnc enabled  true
 openstack-config --set  /etc/nova/nova.conf vnc server_listen  0.0.0.0
 openstack-config --set  /etc/nova/nova.conf vnc server_proxyclient_address  '$my_ip'

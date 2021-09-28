@@ -12,6 +12,9 @@ categories: 服务配置
     - Applications and automatic service migration
     - Storage components
     - Facility services such as power, air conditioning, and fire protection
+- 服务类型：
+    - 无状态服务： 可在提出请求后提供响应，然后无需进一步关注。为了使无状态服务高度可用，需要提供冗余节点并对其进行负载。包括nova-api， nova-conductor，glance-api，keystone-api，neutron-api，nova-scheduler。
+    - 有状态服务： 对服务的后续请求取决于第一个请求的结果。有状态服务更难管理，因为单个动作通常涉及多个请求。使状态服务高度可用可能取决于您选择主动/被动配置还是主动/主动配置。包括OpenStack的数据库和消息队列。
 - 有状态服务高可用类型有:
     - active/passive: 通常需要一个VIP处理请求。独立应用（Pacemarkr or Corosync）监督这些服务
     - active/active: 通常无状态服务，通过负载均衡（HAproxy）以及VIP处理请求
