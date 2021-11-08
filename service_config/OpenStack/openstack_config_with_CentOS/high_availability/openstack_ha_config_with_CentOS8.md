@@ -112,7 +112,7 @@ openstack-compute02
     - systemctl enable chronyd.service
     - systemctl start chronyd.service
     - verify: chronyc sources
-- firewall and seLinxu:
+- firewall and seLinux:
     - systemctl stop firewalld
     - systemctl disable firewalld
     - sed -i 's/enforcing/disabled/' /etc/selinux/config
@@ -185,7 +185,6 @@ wsrep_slave_threads=4
 innodb_flush_log_at_trx_commit=2
 innodb_buffer_pool_size=1024M
 wsrep_sst_method=rsync
- wsrep_cluster_address
 [embedded]
 
 [mariadb]
@@ -1870,7 +1869,7 @@ rbd concurrent management ops = 20
 - cp /etc/nova/nova.conf{,.bak2}
 ```shell
 #有时候碰到硬盘太大,比如需要创建80G的虚拟机,则会创建失败,需要修改nova.conf里面的vif超时参数
-openstack-config --set /etc/nova/nova.conf DEFAULT vif_plugging_timeout 0
+openstack-config --set /etc/nova/nova.conf DEFAULT vif_plugging_timeout 180
 openstack-config --set /etc/nova/nova.conf DEFAULT vif_plugging_is_fatal False
 
 #支持虚拟机硬件加速;前面已添加
@@ -1918,7 +1917,7 @@ openstack-config --set /etc/nova/nova.conf libvirt hw_disk_discard unmap
     - yum install sshpass -y
     - usermod  -s /bin/bash nova
     - passwd nova
-    - su - nova
+    - su nova
     - ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ''
     - ssh-copy-id -i openstack-compute0x
 - systemctl mask libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket libvirtd-tls.socket libvirtd-tcp.socket

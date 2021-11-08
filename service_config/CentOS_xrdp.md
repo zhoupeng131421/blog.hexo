@@ -5,19 +5,19 @@ tags: [xrdp, centos]
 categories: 服务配置
 ---
 
-- yum install epel-release
-- yum install xrdp
-- yum install tigervnc-server
-- vim /etc/xrdp/xrdp.ini: map_bpp=32 --> 24
+- `sudo yum install epel-release -y`
+- `sudo yum install xrdp -y`
+- `sudo yum install tigervnc-server -y`
+- `sudo vim /etc/xrdp/xrdp.ini`: map_bpp=32 --> 24
 - selinux:
-    - chcon -t bin_t /usr/sbin/xrdp
-    - chcon -t bin_t /usr/sbin/xrdp-sesman
+    - `sudo chcon -t bin_t /usr/sbin/xrdp`
+    - `sudo chcon -t bin_t /usr/sbin/xrdp-sesman`
 - systemd:
-    - systemctl start xrdp
-    - systemctl enable xrdp
+    - `sudo systemctl start xrdp`
+    - `sudo systemctl enable xrdp`
 - firewalld:
-    - firewall-cmd  --permanent --zone=public --add-port=3389/tcp
-    - firewall-cmd --reload
+    - `sudo firewall-cmd  --permanent --zone=public --add-port=3389/tcp`
+    - `sudo firewall-cmd --reload`
 - verify:
-    - systemctl status xrdp.service
-    - ss -antup|grep xrdp
+    - `sudo systemctl status xrdp.service`
+    - `sudo ss -antup|grep xrdp`
