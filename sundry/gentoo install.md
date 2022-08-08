@@ -1,3 +1,10 @@
+---
+title: Gentoo install
+date: 2022-07-02
+tags: [Gentoo]
+categories: 随笔
+---
+
 - PVE create VM
     - BIOS: OVMF (UEFI)
     - Memory: no ballooning device

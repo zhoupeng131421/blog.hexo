@@ -1,3 +1,10 @@
+---
+title: ESXi add driver
+date: 2022-02-12
+tags: [ESXi]
+categories: 随笔
+---
+
 1. download ESXi-Customizer
     - git clone https://github.com/VFrontDe/ESXi-Customizer-PS.git
 2. open powershell with Administrator
