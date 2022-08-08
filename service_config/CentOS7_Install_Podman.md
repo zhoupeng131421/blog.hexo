@@ -32,7 +32,7 @@ categories: 服务配置
     - 用来显示各个容器的内部ip
 - podman pull xxx
 - podman info
-- 获取容器pid: podman inspect -f {{.State.Pid}} xxx
+- 获取容器pid: `podman inspect -f {{.State.Pid}} xxx`
 - 进去容器网络命名空间： nsenter -n -t pid
 
 # Install Nextcloud
