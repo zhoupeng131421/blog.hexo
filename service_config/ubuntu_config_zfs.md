@@ -1,3 +1,10 @@
+---
+title: ubuntu config zfs
+date: 2022-05-08
+tags: [zfs, ubuntu]
+categories: 服务配置
+---
+
 - sudo apt install zfsutils
 - create pool
     - sudo zpool create your-pool /dev/sdc /dev/sdd

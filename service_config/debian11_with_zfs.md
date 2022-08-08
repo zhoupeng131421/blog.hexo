@@ -1,3 +1,10 @@
+---
+title: debian zfs
+date: 2022-05-08
+tags: [zfs, debian]
+categories: 服务配置
+---
+
 - https://wiki.debian.org/ZFS
 
 # install

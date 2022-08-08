@@ -1,3 +1,10 @@
+---
+title: debian targetcli-fb
+date: 2022-04-02
+tags: [iSCSI, debian]
+categories: 服务配置
+---
+
 - sudo apt -y install targetcli-fb
 - sudo mkdir /var/lib/iscsi_disks
 - sudo targetcli

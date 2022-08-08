@@ -1,3 +1,10 @@
+---
+title: CentOS7 iSCSI
+date: 2022-03-20
+tags: [iSCSI, centos]
+categories: 服务配置
+---
+
 # server
 - yum install targetd targetcli
 

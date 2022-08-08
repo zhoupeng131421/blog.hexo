@@ -1,3 +1,10 @@
+---
+title: CentOS7 samba winbind
+date: 2020-11-9
+tags: [samba, centos]
+categories: 服务配置
+---
+
 - sudo yum install pam_krb5* krb5-libs* krb5-workstation* krb5-devel* krb5-auth samba samba-winbind* samba-client* samba-swat* -y
 - sudo chkconfig smb on && chkconfig winbind on
 

@@ -1,3 +1,10 @@
+---
+title: CentOS7 user renase
+date: 2020-03-23
+tags: [user, centos]
+categories: 服务配置
+---
+
 - pkill -u old
 - pkill -9 -u old
 

@@ -1,3 +1,10 @@
+---
+title: CentOS7 samba krb5
+date: 2021-11-9
+tags: [samba, centos]
+categories: 服务配置
+---
+
 # host user prepare
 - sudo apt install krb5-config krb5-user libpam-krb5 -y
 
