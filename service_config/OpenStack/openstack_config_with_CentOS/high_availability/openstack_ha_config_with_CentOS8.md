@@ -11,9 +11,9 @@ categories: 服务配置
 
 |HostName|IP|Services|
 |---|---|---|
-|openstack-controller01|10.10.10.51|
-|openstack-controller02|10.10.10.52|
-|openstack-controller03|10.10.10.53|
+|fz-controller01|10.10.10.61|
+|fz-controller02|10.10.10.62|
+|fz-controller03|10.10.10.63|
 - user and password
 
 |service|web|username|password|
@@ -21,29 +21,29 @@ categories: 服务配置
 |host||root|zp@131421|
 |mysql||root|zp@131421|
 |mariadb clustercheck||clustercheck|123456|
-|rabbitmq|http://10.10.10.51:15672|openstack|zp@131421|
-|pacemaker|https://10.10.10.51:2224|hacluster|zp@131421|
+|rabbitmq|http://10.10.10.61:15672|openstack|zp@131421|
+|pacemaker|https://10.10.10.61:2224|hacluster|zp@131421|
 |pacemaker HA|https://10.10.10.69:2224|hacluster|zp@131421|
 |haproxy|http://10.10.10.69:1080|admin|admin|
 |keystone||admin|w1zlcjmK|
 |keystone||demo|123456|
 |glance||glance|56KtIfqc|
-|placement||placement|58PGTpgC|
-|nova||nova|7Pbjqyyf|
-|neutron||neutron|6ZKOyWXt|
-|horazion|||GzDgYC2m|
-|cinder|||PGZoNz7H|
+|placement||placement|56KtIfqc|
+|nova||nova|56KtIfqc|
+|neutron||neutron|56KtIfqc|
+|horazion|||56KtIfqc|
+|cinder|||56KtIfqc|
 ## CentOS8 prepare
 - set root password: sudo passwd
 - permit root account via ssh: /etc/ssh/sshd_config: PermitRootLogin yes
 - vim /etc/resolv.conf: nameserver 10.10.10.1
-- ssh-copy-id -i root@openstack-controller01
-- ssh-copy-id -i root@openstack-controller02
-- ssh-copy-id -i root@openstack-controller03
+- ssh-copy-id -i root@fz-controller01
+- ssh-copy-id -i root@fz-controller02
+- ssh-copy-id -i root@fz-controller03
 - ssh-copy-id -i root@openstack-compute01
 - ssh-copy-id -i root@openstack-compute01
 
-- yum install -y net-tools vim git wget curl
+- yum install -y net-tools vim git wget curl chrony
 
 # 二. controller node basic config
 ## ansible deploy basic apps
@@ -97,9 +97,9 @@ categories: 服务配置
 - vim hosts
 ```shell
 [openstack-controller]
-openstack-controller01
-openstack-controller02
-openstack-controller03
+fz-controller01
+fz-controller02
+fz-controller03
 
 [openstack-compute]
 openstack-compute01
@@ -107,8 +107,8 @@ openstack-compute02
 ```
 - NTP (all nodes)
     - yum install chrony
-    - openstack-controller01, vim /etc/chrony.conf: allow 10.10.10.0/24
-    - all nodes except openstack-controller01, vim /etc/chrony.conf: server openstack-controller01 iburst
+    - fz-controller01, vim /etc/chrony.conf: allow 10.10.10.0/24
+    - all nodes except fz-controller01, vim /etc/chrony.conf: server fz-controller01 iburst
     - systemctl enable chronyd.service
     - systemctl start chronyd.service
     - verify: chronyc sources
@@ -144,7 +144,7 @@ openstack-compute02
     - yum install mariadb-server-galera mariadb-galera-common galera xinetd rsync -y
 ```shell
 yum remove mariadb mariadb-client mariadb-server python2-PyMySQL mariadb-server-galera mariadb-galera-common galera rsync -y
-rm -rf /etc/my.sql.d/ /var/lib/mysql/
+rm -rf /etc/my.cnf.d/ /var/lib/mysql/
 yum install -y mariadb mariadb-server python2-PyMySQL mariadb-server-galera mariadb-galera-common galera rsync
 ```
         - systemctl restart mariadb.service
@@ -161,7 +161,7 @@ yum install -y mariadb mariadb-server python2-PyMySQL mariadb-server-galera mari
 [server]
 
 [mysqld]
-bind-address = 10.10.10.51
+bind-address = 10.10.10.61
 max_connections = 1000
 datadir=/var/lib/mysql
 socket=/var/lib/mysql/mysql.sock
@@ -174,9 +174,9 @@ wsrep_on=ON
 wsrep_provider=/usr/lib64/galera/libgalera_smm.so
 wsrep_cluster_name="mariadb_galera_cluster"
 
-wsrep_cluster_address="gcomm://openstack-controller01,openstack-controller02,openstack-controller03"
-wsrep_node_name="openstack-controller01"
-wsrep_node_address="10.10.10.51"
+wsrep_cluster_address="gcomm://fz-controller01,fz-controller02,fz-controller03"
+wsrep_node_name="fz-controller01"
+wsrep_node_address="10.10.10.61"
 
 binlog_format=ROW
 default_storage_engine=InnoDB
@@ -307,9 +307,9 @@ galera-monitor  9200/tcp                # galera-monitor
 2021-09-26 14:50:11 0 [ERROR] WSREP: failed to open gcomm backend connection: 98: error while trying to listen 'tcp://0.0.0.0:4567?socket.non_blocking=1', asio error 'bind: Address already in use': 98 (Address already in use)
          at gcomm/src/asio_tcp.cpp:listen():931
 2021-09-26 14:50:11 0 [ERROR] WSREP: gcs/src/gcs_core.cpp:gcs_core_open():209: Failed to open backend connection: -98 (Address already in use)
-2021-09-26 14:50:11 0 [ERROR] WSREP: gcs/src/gcs.cpp:gcs_open():1475: Failed to open channel 'mariadb_galera_cluster' at 'gcomm://openstack-controller01,openstack-controller02,openstack-controller03': -98 (Address already in use)
+2021-09-26 14:50:11 0 [ERROR] WSREP: gcs/src/gcs.cpp:gcs_open():1475: Failed to open channel 'mariadb_galera_cluster' at 'gcomm://fz-controller01,fz-controller02,fz-controller03': -98 (Address already in use)
 2021-09-26 14:50:11 0 [ERROR] WSREP: gcs connect failed: Address already in use
-2021-09-26 14:50:11 0 [ERROR] WSREP: wsrep::connect(gcomm://openstack-controller01,openstack-controller02,openstack-controller03) failed: 7
+2021-09-26 14:50:11 0 [ERROR] WSREP: wsrep::connect(gcomm://fz-controller01,fz-controller02,fz-controller03) failed: 7
 2021-09-26 14:50:11 0 [ERROR] Aborting
 ```
     - ps -ef | grep sql
@@ -318,19 +318,19 @@ galera-monitor  9200/tcp                # galera-monitor
 ## rabbitmq config
 - - Stop the rabbitmq-server service in the controller nodes except the controller01
 - send .erlang.cookie to other controller nodes
-    - scp /var/lib/rabbitmq/.erlang.cookie  openstack-controller02:/var/lib/rabbitmq/
-    - scp /var/lib/rabbitmq/.erlang.cookie  openstack-controller03:/var/lib/rabbitmq/
+    - scp /var/lib/rabbitmq/.erlang.cookie  fz-controller02:/var/lib/rabbitmq/
+    - scp /var/lib/rabbitmq/.erlang.cookie  fz-controller03:/var/lib/rabbitmq/
 - chang the .erlang.cookie owner at other controller nodes
     - chown rabbitmq:rabbitmq /var/lib/rabbitmq/.erlang.cookie
 - start the rabbitmq-server service in the other controller nodes
     - systemctl start rabbitmq-server
 -  构建集群，controller02和03节点以ram节点的形式加入集群
     - rabbitmqctl stop_app
-    - rabbitmqctl join_cluster --ram rabbit@openstack-controller01
+    - rabbitmqctl join_cluster --ram rabbit@fz-controller01
     - rabbitmqctl start_app
 - verify at any controller node: rabbitmqctl cluster_status
 - create rabbitmq manager account
-    - rabbitmqctl add_user openstack zp@131421
+    - rabbitmqctl add_user openstack 123456
     - rabbitmqctl set_user_tags openstack administrator
     - rabbitmqctl set_permissions -p "/" openstack ".*" ".*" ".*"
     - rabbitmqctl list_users
@@ -341,56 +341,63 @@ galera-monitor  9200/tcp                # galera-monitor
     - apply all controller nodes
     - rabbitmq-plugins enable rabbitmq_management
     - netstat -lntup|grep 5672
-    - verify at any controller node: http://openstack-controller01:15672
+    - verify at any controller node: http://fz-controller01:15672
 
 ## memcached and ETCD
 ### memcached
 - 在全部安装memcached服务的节点设置服务监听本地地址
     - `sed -i 's|127.0.0.1,::1|0.0.0.0|g' /etc/sysconfig/memcached`
     - systemctl restart memcached.service
+    - systemctl enable memcached.service
     - systemctl status memcached.service
 ### ETCD
 - apply to all controller nodes:
 - cp -a /etc/etcd/etcd.conf{,.bak}
-- [openstack-controller01 ~]#
+- [fz-controller01 ~]#
 ```shell
-cat << EOF | tee /etc/etcd/etcd.conf
+cat > /etc/etcd/etcd.conf <<EOF 
+#[Member]
 ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
-ETCD_LISTEN_PEER_URLS="http://10.10.10.51:2380"
-ETCD_LISTEN_CLIENT_URLS="http://10.10.10.51:2379,http://127.0.0.1:2379"
+ETCD_LISTEN_PEER_URLS="http://10.10.10.61:2380"
+ETCD_LISTEN_CLIENT_URLS="http://10.10.10.61:2379,http://127.0.0.1:2379"
 ETCD_NAME="controller01"
-ETCD_INITIAL_ADVERTISE_PEER_URLS="http://10.10.10.51:2380"
-ETCD_ADVERTISE_CLIENT_URLS="http://10.10.10.51:2379,http://127.0.0.1:2379"
-ETCD_INITIAL_CLUSTER="controller01=http://10.10.10.51:2380,controller02=http://10.10.10.52:2380,controller03=http://10.10.10.53:2380"
-ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://10.10.10.61:2380"
+ETCD_ADVERTISE_CLIENT_URLS="http://10.10.10.61:2379"
+ETCD_INITIAL_CLUSTER="controller01=http://10.10.10.61:2380,controller02=http://10.10.10.62:2380,controller03=http://10.10.10.63:2380"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster-01"
 ETCD_INITIAL_CLUSTER_STATE="new"
 EOF
 ```
-- [openstack-controller02 ~]#
+- [fz-controller02 ~]#
 ```shell
-cat << EOF | tee /etc/etcd/etcd.conf
+cat > /etc/etcd/etcd.conf <<EOF 
+#[Member]
 ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
-ETCD_LISTEN_PEER_URLS="http://10.10.10.52:2380"
-ETCD_LISTEN_CLIENT_URLS="http://10.10.10.52:2379,http://127.0.0.1:2379"
+ETCD_LISTEN_PEER_URLS="http://10.10.10.62:2380"
+ETCD_LISTEN_CLIENT_URLS="http://10.10.10.62:2379,http://127.0.0.1:2379"
 ETCD_NAME="controller02"
-ETCD_INITIAL_ADVERTISE_PEER_URLS="http://10.10.10.52:2380"
-ETCD_ADVERTISE_CLIENT_URLS="http://10.10.10.52:2379,http://127.0.0.1:2379"
-ETCD_INITIAL_CLUSTER="controller01=http://10.10.10.51:2380,controller02=http://10.10.10.52:2380,controller03=http://10.10.10.53:2380"
-ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://10.10.10.62:2380"
+ETCD_ADVERTISE_CLIENT_URLS="http://10.10.10.62:2379"
+ETCD_INITIAL_CLUSTER="controller01=http://10.10.10.61:2380,controller02=http://10.10.10.62:2380,controller03=http://10.10.10.63:2380"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster-01"
 ETCD_INITIAL_CLUSTER_STATE="new"
 EOF
 ```
-- [openstack-controller03 ~]#
+- [fz-controller03 ~]#
 ```shell
-cat << EOF | tee /etc/etcd/etcd.conf
+cat > /etc/etcd/etcd.conf <<EOF 
+#[Member]
 ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
-ETCD_LISTEN_PEER_URLS="http://10.10.10.53:2380"
-ETCD_LISTEN_CLIENT_URLS="http://10.10.10.53:2379,http://127.0.0.1:2379"
+ETCD_LISTEN_PEER_URLS="http://10.10.10.63:2380"
+ETCD_LISTEN_CLIENT_URLS="http://10.10.10.63:2379,http://127.0.0.1:2379"
 ETCD_NAME="controller03"
-ETCD_INITIAL_ADVERTISE_PEER_URLS="http://10.10.10.53:2380"
-ETCD_ADVERTISE_CLIENT_URLS="http://10.10.10.53:2379,http://127.0.0.1:2379"
-ETCD_INITIAL_CLUSTER="controller01=http://10.10.10.51:2380,controller02=http://10.10.10.52:2380,controller03=http://10.10.10.53:2380"
-ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://10.10.10.63:2380"
+ETCD_ADVERTISE_CLIENT_URLS="http://10.10.10.63:2379"
+ETCD_INITIAL_CLUSTER="controller01=http://10.10.10.61:2380,controller02=http://10.10.10.62:2380,controller03=http://10.10.10.63:2380"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster-01"
 ETCD_INITIAL_CLUSTER_STATE="new"
 EOF
 ```
@@ -429,15 +436,15 @@ LimitNOFILE=65536
 - systemctl enable pcsd
 - systemctl start pcsd
 - any controller node:
-  - pcs host auth openstack-controller01 openstack-controller02 openstack-controller03 -u hacluster -p zp@131421
-  - pcs cluster setup openstack-cluster-01 --start openstack-controller01 openstack-controller02 openstack-controller03
+  - pcs host auth fz-controller01 fz-controller02 fz-controller03 -u hacluster -p zp@131421
+  - pcs cluster setup openstack-cluster-01 --start fz-controller01 fz-controller02 fz-controller03
 - pcs cluster start  --all
 - pcs cluster enable  --all
 - cluster status: pcs cluster status
 - corosync status: pcs status corosync
 - node info: corosync-cmapctl | grep members
 - resource info: pcs resource
-- verify: https://openstack-controller01:2224
+- verify: https://fz-controller01:2224
 ### pacemaker ha
 - env: any controller node
 ```shell
@@ -515,20 +522,20 @@ listen stats
   option  tcpka
   option  httpchk
   option  tcplog
-  server openstack-controller01 10.10.10.51:80 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:80 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:80 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:80 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:80 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:80 check inter 2000 rise 2 fall 5
 
 # mariadb服务；
-#设置openstack-controller01节点为master，openstack-controller02/03节点为backup，一主多备的架构可规避数据不一致性；
+#设置fz-controller01节点为master，fz-controller02/03节点为backup，一主多备的架构可规避数据不一致性；
 #另外官方示例为检测9200（心跳）端口，测试在mariadb服务宕机的情况下，虽然”/usr/bin/clustercheck”脚本已探测不到服务，但受xinetd控制的9200端口依然正常，导致haproxy始终将请求转发到mariadb服务宕机的节点，暂时修改为监听3306端口
 listen galera_cluster
   bind 10.10.10.69:3306
   balance  source
   mode    tcp
-  server openstack-controller01 10.10.10.51:3306 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:3306 backup check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:3306 backup check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:3306 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:3306 backup check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:3306 backup check inter 2000 rise 2 fall 5
 
 #为rabbirmq提供ha集群访问端口，供openstack各服务访问；
 #如果openstack各服务直接连接rabbitmq集群，这里可不设置rabbitmq的负载均衡
@@ -540,9 +547,9 @@ listen galera_cluster
    timeout client  3h
    timeout server  3h
    option  clitcpka
-   server openstack-controller01 10.10.10.51:5672 check inter 10s rise 2 fall 5
-   server openstack-controller02 10.10.10.52:5672 check inter 10s rise 2 fall 5
-   server openstack-controller03 10.10.10.53:5672 check inter 10s rise 2 fall 5
+   server fz-controller01 10.10.10.61:5672 check inter 10s rise 2 fall 5
+   server fz-controller02 10.10.10.62:5672 check inter 10s rise 2 fall 5
+   server fz-controller03 10.10.10.63:5672 check inter 10s rise 2 fall 5
 
 # glance_api服务
  listen glance_api_cluster
@@ -553,9 +560,9 @@ listen galera_cluster
   option  tcplog
   timeout client 3h 
   timeout server 3h
-  server openstack-controller01 10.10.10.51:9292 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:9292 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:9292 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:9292 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:9292 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:9292 check inter 2000 rise 2 fall 5
 
 # keystone_public _api服务
  listen keystone_public_cluster
@@ -564,9 +571,9 @@ listen galera_cluster
   option  tcpka
   option  httpchk
   option  tcplog
-  server openstack-controller01 10.10.10.51:5000 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:5000 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:5000 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:5000 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:5000 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:5000 check inter 2000 rise 2 fall 5
 
  listen nova_compute_api_cluster
   bind 10.10.10.69:8774
@@ -574,36 +581,36 @@ listen galera_cluster
   option  tcpka
   option  httpchk
   option  tcplog
-  server openstack-controller01 10.10.10.51:8774 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:8774 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:8774 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:8774 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:8774 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:8774 check inter 2000 rise 2 fall 5
 
  listen nova_placement_cluster
   bind 10.10.10.69:8778
   balance  source
   option  tcpka
   option  tcplog
-  server openstack-controller01 10.10.10.51:8778 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:8778 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:8778 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:8778 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:8778 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:8778 check inter 2000 rise 2 fall 5
 
  listen nova_metadata_api_cluster
   bind 10.10.10.69:8775
   balance  source
   option  tcpka
   option  tcplog
-  server openstack-controller01 10.10.10.51:8775 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:8775 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:8775 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:8775 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:8775 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:8775 check inter 2000 rise 2 fall 5
 
  listen nova_vncproxy_cluster
   bind 10.10.10.69:6080
   balance  source
   option  tcpka
   option  tcplog
-  server openstack-controller01 10.10.10.51:6080 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:6080 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:6080 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:6080 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:6080 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:6080 check inter 2000 rise 2 fall 5
 
  listen neutron_api_cluster
   bind 10.10.10.69:9696
@@ -611,9 +618,9 @@ listen galera_cluster
   option  tcpka
   option  httpchk
   option  tcplog
-  server openstack-controller01 10.10.10.51:9696 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:9696 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:9696 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:9696 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:9696 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:9696 check inter 2000 rise 2 fall 5
 
  listen cinder_api_cluster
   bind 10.10.10.69:8776
@@ -621,9 +628,9 @@ listen galera_cluster
   option  tcpka
   option  httpchk
   option  tcplog
-  server openstack-controller01 10.10.10.51:8776 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:8776 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:8776 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:8776 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:8776 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:8776 check inter 2000 rise 2 fall 5
 
  listen cinder_volume
   bind 10.10.10.69:9292
@@ -631,12 +638,12 @@ listen galera_cluster
   option  tcpka
   option  httpchk
   option  tcplog
-  server openstack-controller01 10.10.10.51:9292 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:9292 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:9292 check inter 2000 rise 2 fall 5
+  server fz-controller01 10.10.10.61:9292 check inter 2000 rise 2 fall 5
+  server fz-controller02 10.10.10.62:9292 check inter 2000 rise 2 fall 5
+  server fz-controller03 10.10.10.63:9292 check inter 2000 rise 2 fall 5
 ```
-- scp /etc/haproxy/haproxy.cfg openstack-controller02:/etc/haproxy/haproxy.cfg
-- scp /etc/haproxy/haproxy.cfg openstack-controller03:/etc/haproxy/haproxy.cfg
+- scp /etc/haproxy/haproxy.cfg fz-controller02:/etc/haproxy/haproxy.cfg
+- scp /etc/haproxy/haproxy.cfg fz-controller03:/etc/haproxy/haproxy.cfg
 - modify kernel parameter (maybe it has been done):
     - echo 'net.ipv4.ip_nonlocal_bind = 1' >>/etc/sysctl.conf
     - echo "net.ipv4.ip_forward = 1" >>/etc/sysctl.conf
@@ -674,20 +681,20 @@ flush privileges;
 ```shell
 openstack-config --set /etc/keystone/keystone.conf cache backend oslo_cache.memcache_pool
 openstack-config --set /etc/keystone/keystone.conf cache enabled true
-openstack-config --set /etc/keystone/keystone.conf cache memcache_servers openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set /etc/keystone/keystone.conf cache memcache_servers fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 openstack-config --set /etc/keystone/keystone.conf database connection mysql+pymysql://keystone:w1zlcjmK@10.10.10.69/keystone
 openstack-config --set /etc/keystone/keystone.conf token provider fernet
 ```
-- scp -rp /etc/keystone/keystone.conf openstack-controller02:/etc/keystone/keystone.conf
-- scp -rp /etc/keystone/keystone.conf openstack-controller03:/etc/keystone/keystone.conf
+- scp -rp /etc/keystone/keystone.conf fz-controller02:/etc/keystone/keystone.conf
+- scp -rp /etc/keystone/keystone.conf fz-controller03:/etc/keystone/keystone.conf
 - sync keystone database:
     - infill database: `su -s /bin/sh -c "keystone-manage db_sync" keystone`
     - verify:`mysql -uroot -p  keystone  -e "show  tables";`
 - init Fernet secret key:
     - `keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone`
     - `keystone-manage credential_setup --keystone-user keystone --keystone-group keystone`
-    - `scp -rp /etc/keystone/fernet-keys /etc/keystone/credential-keys openstack-controller02:/etc/keystone/`
-    - `scp -rp /etc/keystone/fernet-keys /etc/keystone/credential-keys openstack-controller03:/etc/keystone/`
+    - `scp -rp /etc/keystone/fernet-keys /etc/keystone/credential-keys fz-controller02:/etc/keystone/`
+    - `scp -rp /etc/keystone/fernet-keys /etc/keystone/credential-keys fz-controller03:/etc/keystone/`
     - [controller02 | 03~ ]# `chown -R keystone:keystone /etc/keystone/credential-keys/`
     - [controller02 | 03~ ]# `chown -R keystone:keystone /etc/keystone/fernet-keys/ `
 ## init
@@ -703,21 +710,21 @@ keystone-manage bootstrap --bootstrap-password w1zlcjmK \
 - cp /etc/httpd/conf/httpd.conf{,.bak}
 - sed -i "s/#ServerName www.fzLab.siemens.net:80/ServerName ${HOSTNAME}/" /etc/httpd/conf/httpd.conf
 - 不同的节点替换不同的ip地址
-    - sed -i "s/Listen\ 80/Listen\ 10.10.10.51:80/g" /etc/httpd/conf/httpd.conf
-    - sed -i "s/Listen\ 80/Listen\ 10.10.10.52:80/g" /etc/httpd/conf/httpd.conf
-    - sed -i "s/Listen\ 80/Listen\ 10.10.10.53:80/g" /etc/httpd/conf/httpd.conf
+    - sed -i "s/Listen\ 80/Listen\ 10.10.10.61:80/g" /etc/httpd/conf/httpd.conf
+    - sed -i "s/Listen\ 80/Listen\ 10.10.10.62:80/g" /etc/httpd/conf/httpd.conf
+    - sed -i "s/Listen\ 80/Listen\ 10.10.10.63:80/g" /etc/httpd/conf/httpd.conf
 - all controller node:
 ```shell
 ln -s /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
 ##controller01
-sed -i "s/Listen\ 5000/Listen\ 10.10.10.51:5000/g" /etc/httpd/conf.d/wsgi-keystone.conf
-sed -i "s#*:5000#10.10.10.51:5000#g" /etc/httpd/conf.d/wsgi-keystone.conf
+sed -i "s/Listen\ 5000/Listen\ 10.10.10.61:5000/g" /etc/httpd/conf.d/wsgi-keystone.conf
+sed -i "s#*:5000#10.10.10.61:5000#g" /etc/httpd/conf.d/wsgi-keystone.conf
 ##controller02
-sed -i "s/Listen\ 5000/Listen\ 10.10.10.52:5000/g" /etc/httpd/conf.d/wsgi-keystone.conf
-sed -i "s#*:5000#10.10.10.52:5000#g" /etc/httpd/conf.d/wsgi-keystone.conf
+sed -i "s/Listen\ 5000/Listen\ 10.10.10.62:5000/g" /etc/httpd/conf.d/wsgi-keystone.conf
+sed -i "s#*:5000#10.10.10.62:5000#g" /etc/httpd/conf.d/wsgi-keystone.conf
 ##controller03
-sed -i "s/Listen\ 5000/Listen\ 10.10.10.53:5000/g" /etc/httpd/conf.d/wsgi-keystone.conf
-sed -i "s#*:5000#10.10.10.53:5000#g" /etc/httpd/conf.d/wsgi-keystone.conf
+sed -i "s/Listen\ 5000/Listen\ 10.10.10.63:5000/g" /etc/httpd/conf.d/wsgi-keystone.conf
+sed -i "s#*:5000#10.10.10.63:5000#g" /etc/httpd/conf.d/wsgi-keystone.conf
 
 systemctl restart httpd.service
 systemctl enable httpd.service
@@ -762,8 +769,8 @@ export OS_IMAGE_API_VERSION=2
 EOF
 ```
 - source  ~/demo-openrc
-- scp -rp ~/demo-openrc openstack-controller02:~/
-- scp -rp ~/demo-openrc openstack-controller03:~/
+- scp -rp ~/demo-openrc fz-controller02:~/
+- scp -rp ~/demo-openrc fz-controller03:~/
 - verify: openstack token issue
 - verify keystone:
     - admin user request the authentication token:
@@ -809,14 +816,14 @@ flush privileges;
 - egrep -v '^$|^#' /etc/glance/glance-api.conf.bak >/etc/glance/glance-api.conf
 - config glance.conf:
 ```shell
-openstack-config --set /etc/glance/glance-api.conf DEFAULT bind_host 10.10.10.51
+openstack-config --set /etc/glance/glance-api.conf DEFAULT bind_host 10.10.10.61
 openstack-config --set /etc/glance/glance-api.conf database connection  mysql+pymysql://glance:56KtIfqc@10.10.10.69/glance
 openstack-config --set /etc/glance/glance-api.conf glance_store stores file,http
 openstack-config --set /etc/glance/glance-api.conf glance_store default_store file
 openstack-config --set /etc/glance/glance-api.conf glance_store filesystem_store_datadir /var/lib/glance/images/
 openstack-config --set /etc/glance/glance-api.conf keystone_authtoken www_authenticate_uri   http://10.10.10.69:5000
 openstack-config --set /etc/glance/glance-api.conf keystone_authtoken auth_url  http://10.10.10.69:5000
-openstack-config --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set /etc/glance/glance-api.conf keystone_authtoken memcached_servers fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 openstack-config --set /etc/glance/glance-api.conf keystone_authtoken auth_type password
 openstack-config --set /etc/glance/glance-api.conf keystone_authtoken project_domain_name Default
 openstack-config --set /etc/glance/glance-api.conf keystone_authtoken user_domain_name Default
@@ -825,10 +832,10 @@ openstack-config --set /etc/glance/glance-api.conf keystone_authtoken username g
 openstack-config --set /etc/glance/glance-api.conf keystone_authtoken password 56KtIfqc
 openstack-config --set /etc/glance/glance-api.conf paste_deploy flavor keystone
 ```
-- `scp -rp /etc/glance/glance-api.conf openstack-controller02:/etc/glance/glance-api.conf`
-- `scp -rp /etc/glance/glance-api.conf openstack-controller03:/etc/glance/glance-api.conf`
-- [controller02~ ]# `openstack-config --set /etc/glance/glance-api.conf DEFAULT bind_host 10.10.10.52`
-- [controller02~ ]# `openstack-config --set /etc/glance/glance-api.conf DEFAULT bind_host 10.10.10.53`
+- `scp -rp /etc/glance/glance-api.conf fz-controller02:/etc/glance/glance-api.conf`
+- `scp -rp /etc/glance/glance-api.conf fz-controller03:/etc/glance/glance-api.conf`
+- [controller02~ ]# `openstack-config --set /etc/glance/glance-api.conf DEFAULT bind_host 10.10.10.62`
+- [controller02~ ]# `openstack-config --set /etc/glance/glance-api.conf DEFAULT bind_host 10.10.10.63`
 - [all]# 
 ```shell
 systemctl enable openstack-glance-api.service
@@ -857,13 +864,13 @@ systemctl status openstack-glance-api.service
 - mysql -uroot -p
 ```shell
 CREATE DATABASE placement;
-GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'localhost' IDENTIFIED BY '58PGTpgC';
-GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'%' IDENTIFIED BY '58PGTpgC';
+GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'localhost' IDENTIFIED BY '56KtIfqc';
+GRANT ALL PRIVILEGES ON placement.* TO 'placement'@'%' IDENTIFIED BY '56KtIfqc';
 flush privileges;
 ```
 - create placement endpoint:
 ```shell
-openstack user create --domain default --password=58PGTpgC placement
+openstack user create --domain default --password=56KtIfqc placement
 openstack role add --project service --user placement admin
 openstack service create --name placement --description "Placement API" placement
 openstack endpoint create --region RegionOne placement public http://10.10.10.69:8778
@@ -875,19 +882,19 @@ openstack endpoint create --region RegionOne placement admin http://10.10.10.69:
 - cp /etc/placement/placement.conf /etc/placement/placement.conf.bak
 - grep -Ev '^$|#' /etc/placement/placement.conf.bak > /etc/placement/placement.conf
 ```shell
-openstack-config --set /etc/placement/placement.conf placement_database connection mysql+pymysql://placement:58PGTpgC@10.10.10.69/placement
+openstack-config --set /etc/placement/placement.conf placement_database connection mysql+pymysql://placement:56KtIfqc@10.10.10.69/placement
 openstack-config --set /etc/placement/placement.conf api auth_strategy keystone
 openstack-config --set /etc/placement/placement.conf keystone_authtoken auth_url  http://10.10.10.69:5000/v3
-openstack-config --set /etc/placement/placement.conf keystone_authtoken memcached_servers openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set /etc/placement/placement.conf keystone_authtoken memcached_servers fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 openstack-config --set /etc/placement/placement.conf keystone_authtoken auth_type password
 openstack-config --set /etc/placement/placement.conf keystone_authtoken project_domain_name Default
 openstack-config --set /etc/placement/placement.conf keystone_authtoken user_domain_name Default
 openstack-config --set /etc/placement/placement.conf keystone_authtoken project_name service
 openstack-config --set /etc/placement/placement.conf keystone_authtoken username placement
-openstack-config --set /etc/placement/placement.conf keystone_authtoken password 58PGTpgC
+openstack-config --set /etc/placement/placement.conf keystone_authtoken password 56KtIfqc
 ```
-- scp /etc/placement/placement.conf openstack-controller02:/etc/placement/
-- scp /etc/placement/placement.conf openstack-controller03:/etc/placement/
+- scp /etc/placement/placement.conf fz-controller02:/etc/placement/
+- scp /etc/placement/placement.conf fz-controller03:/etc/placement/
 
 - sync database:
     - `su -s /bin/sh -c "placement-manage db sync" placement`
@@ -897,16 +904,16 @@ openstack-config --set /etc/placement/placement.conf keystone_authtoken password
 - apply to every controller node
 - controller01:
     - `cp /etc/httpd/conf.d/00-placement-api.conf{,.bak}`
-    - `sed -i "s/Listen\ 8778/Listen\ 10.10.10.51:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
-    - `sed -i "s/*:8778/10.10.10.51:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
+    - `sed -i "s/Listen\ 8778/Listen\ 10.10.10.61:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
+    - `sed -i "s/*:8778/10.10.10.61:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
 - controller02:
     - `cp /etc/httpd/conf.d/00-placement-api.conf{,.bak}`
-    - `sed -i "s/Listen\ 8778/Listen\ 10.10.10.52:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
-    - `sed -i "s/*:8778/10.10.10.52:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
+    - `sed -i "s/Listen\ 8778/Listen\ 10.10.10.62:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
+    - `sed -i "s/*:8778/10.10.10.62:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
 - controller03:
     - `cp /etc/httpd/conf.d/00-placement-api.conf{,.bak}`
-    - `sed -i "s/Listen\ 8778/Listen\ 10.10.10.53:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
-    - `sed -i "s/*:8778/10.10.10.53:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
+    - `sed -i "s/Listen\ 8778/Listen\ 10.10.10.63:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
+    - `sed -i "s/*:8778/10.10.10.63:8778/g" /etc/httpd/conf.d/00-placement-api.conf`
 - vim /etc/httpd/conf.d/00-placement-api.conf
 ```
 ...
@@ -936,21 +943,21 @@ CREATE DATABASE nova_api;
 CREATE DATABASE nova;
 CREATE DATABASE nova_cell0;
 
-GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY '7Pbjqyyf';
-GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY '7Pbjqyyf';
+GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'localhost' IDENTIFIED BY '56KtIfqc';
+GRANT ALL PRIVILEGES ON nova_api.* TO 'nova'@'%' IDENTIFIED BY '56KtIfqc';
 
-GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY '7Pbjqyyf';
-GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY '7Pbjqyyf';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'localhost' IDENTIFIED BY '56KtIfqc';
+GRANT ALL PRIVILEGES ON nova.* TO 'nova'@'%' IDENTIFIED BY '56KtIfqc';
 
-GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY '7Pbjqyyf';
-GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY '7Pbjqyyf';
+GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'localhost' IDENTIFIED BY '56KtIfqc';
+GRANT ALL PRIVILEGES ON nova_cell0.* TO 'nova'@'%' IDENTIFIED BY '56KtIfqc';
 flush privileges;
 ```
 
 - create endpoint:
 ```shell
 source admin-openrc
-openstack user create --domain default --password 7Pbjqyyf nova
+openstack user create --domain default --password 56KtIfqc nova
 openstack role add --project service --user nova admin
 openstack service create --name nova --description "OpenStack Compute" compute
 openstack endpoint create --region RegionOne compute public http://10.10.10.69:8774/v2.1
@@ -964,29 +971,29 @@ openstack endpoint create --region RegionOne compute admin http://10.10.10.69:87
 - [controller01~ ]#:
 ```shell
 openstack-config --set /etc/nova/nova.conf DEFAULT enabled_apis  osapi_compute,metadata
-openstack-config --set /etc/nova/nova.conf DEFAULT my_ip  10.10.10.51
+openstack-config --set /etc/nova/nova.conf DEFAULT my_ip  10.10.10.62
 openstack-config --set /etc/nova/nova.conf DEFAULT use_neutron  true
 openstack-config --set /etc/nova/nova.conf DEFAULT firewall_driver  nova.virt.firewall.NoopFirewallDriver
-openstack-config --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:zp@131421@openstack-controller01:5672,openstack:zp@131421@openstack-controller02:5672,openstack:zp@131421@openstack-controller03:5672
+openstack-config --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:123456@fz-controller01:5672,openstack:123456@fz-controller02:5672,openstack:123456@fz-controller03:5672
 openstack-config --set /etc/nova/nova.conf DEFAULT osapi_compute_listen_port 8774
 openstack-config --set /etc/nova/nova.conf DEFAULT metadata_listen_port 8775
 openstack-config --set /etc/nova/nova.conf DEFAULT metadata_listen '$my_ip'
 openstack-config --set /etc/nova/nova.conf DEFAULT osapi_compute_listen '$my_ip'
 openstack-config --set /etc/nova/nova.conf api auth_strategy  keystone
-openstack-config --set /etc/nova/nova.conf api_database  connection  mysql+pymysql://nova:7Pbjqyyf@10.10.10.69/nova_api
+openstack-config --set /etc/nova/nova.conf api_database  connection  mysql+pymysql://nova:56KtIfqc@10.10.10.69/nova_api
 openstack-config --set /etc/nova/nova.conf cache backend oslo_cache.memcache_pool
 openstack-config --set /etc/nova/nova.conf cache enabled True
-openstack-config --set /etc/nova/nova.conf cache memcache_servers openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
-openstack-config --set /etc/nova/nova.conf database connection  mysql+pymysql://nova:7Pbjqyyf@10.10.10.69/nova
+openstack-config --set /etc/nova/nova.conf cache memcache_servers fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
+openstack-config --set /etc/nova/nova.conf database connection  mysql+pymysql://nova:56KtIfqc@10.10.10.69/nova
 openstack-config --set /etc/nova/nova.conf keystone_authtoken www_authenticate_uri  http://10.10.10.69:5000/v3
 openstack-config --set /etc/nova/nova.conf keystone_authtoken auth_url  http://10.10.10.69:5000/v3
-openstack-config --set /etc/nova/nova.conf keystone_authtoken memcached_servers  openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set /etc/nova/nova.conf keystone_authtoken memcached_servers  fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 openstack-config --set /etc/nova/nova.conf keystone_authtoken auth_type  password
 openstack-config --set /etc/nova/nova.conf keystone_authtoken project_domain_name  Default
 openstack-config --set /etc/nova/nova.conf keystone_authtoken user_domain_name  Default
 openstack-config --set /etc/nova/nova.conf keystone_authtoken project_name  service
 openstack-config --set /etc/nova/nova.conf keystone_authtoken username  nova
-openstack-config --set /etc/nova/nova.conf keystone_authtoken password  7Pbjqyyf
+openstack-config --set /etc/nova/nova.conf keystone_authtoken password  56KtIfqc
 openstack-config --set /etc/nova/nova.conf vnc enabled  true
 openstack-config --set /etc/nova/nova.conf vnc server_listen  '$my_ip'
 openstack-config --set /etc/nova/nova.conf vnc server_proxyclient_address  '$my_ip'
@@ -1001,18 +1008,18 @@ openstack-config --set /etc/nova/nova.conf placement auth_type  password
 openstack-config --set /etc/nova/nova.conf placement user_domain_name  Default
 openstack-config --set /etc/nova/nova.conf placement auth_url  http://10.10.10.69:5000/v3
 openstack-config --set /etc/nova/nova.conf placement username  placement
-openstack-config --set /etc/nova/nova.conf placement password  58PGTpgC
+openstack-config --set /etc/nova/nova.conf placement password  56KtIfqc
 ```
 - note:
     - 注意几个密码：MQ_PASS, PLACEMENT_PASS
     - 前端采用haproxy时，服务连接rabbitmq会出现连接超时重连的情况，可通过各服务与rabbitmq的日志查看；
-    - transport_url=rabbit://openstack:zp@131421@10.10.10.69:5672
+    - transport_url=rabbit://openstack:123456@10.10.10.69:5672
     - rabbitmq本身具备集群机制，官方文档建议直接连接rabbitmq集群；但采用此方式时服务启动有时会报错，原因不明；如果没有此现象，建议连接rabbitmq直接对接集群而非通过前端haproxy的vip+端口
-        - openstack-config --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:xxx@openstack-controller01:5672,openstack:xxx@openstack-controller02:5672,openstack:xxx@openstack-controller03:5672
-- `scp -rp /etc/nova/nova.conf openstack-controller02:/etc/nova/`
-- `scp -rp /etc/nova/nova.conf openstack-controller03:/etc/nova/`
-- [controller02~ ]# `sed -i "s#10.10.10.51#10.10.10.52#g" /etc/nova/nova.conf`
-- [controller03~ ]# `sed -i "s#10.10.10.51#10.10.10.53#g" /etc/nova/nova.conf`
+        - openstack-config --set /etc/nova/nova.conf DEFAULT transport_url rabbit://openstack:xxx@fz-controller01:5672,openstack:xxx@fz-controller02:5672,openstack:xxx@fz-controller03:5672
+- `scp -rp /etc/nova/nova.conf fz-controller02:/etc/nova/`
+- `scp -rp /etc/nova/nova.conf fz-controller03:/etc/nova/`
+- [controller02~ ]# `sed -i "s#10.10.10.61#10.10.10.62#g" /etc/nova/nova.conf`
+- [controller03~ ]# `sed -i "s#10.10.10.61#10.10.10.63#g" /etc/nova/nova.conf`
 - sync database:
     - `su -s /bin/sh -c "nova-manage api_db sync" nova`
     - `su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova`
@@ -1020,9 +1027,9 @@ openstack-config --set /etc/nova/nova.conf placement password  58PGTpgC
     - `su -s /bin/sh -c "nova-manage db sync" nova`
     - verify:
         - `su -s /bin/sh -c "nova-manage cell_v2 list_cells" nova`
-        - `mysql -h openstack-controller01 -u nova -p -e "use nova_api;show tables;"`
-        - `mysql -h openstack-controller01 -u nova -p -e "use nova;show tables;"`
-        - `mysql -h openstack-controller01 -u nova -p -e "use nova_cell0;show tables;"`
+        - `mysql -h fz-controller01 -u nova -p -e "use nova_api;show tables;"`
+        - `mysql -h fz-controller01 -u nova -p -e "use nova;show tables;"`
+        - `mysql -h fz-controller01 -u nova -p -e "use nova_cell0;show tables;"`
 
 - systemctl restart openstack-nova-api.service 
 - systemctl restart openstack-nova-scheduler.service 
@@ -1057,20 +1064,21 @@ openstack-config --set /etc/nova/nova.conf placement password  58PGTpgC
 - config nove:
 ```shell
 openstack-config --set  /etc/nova/nova.conf DEFAULT enabled_apis  osapi_compute,metadata
-openstack-config --set  /etc/nova/nova.conf DEFAULT transport_url  rabbit://openstack:zp@131421@10.10.10.69
-openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip 10.10.10.54
-openstack-config --set  /etc/nova/nova.conf DEFAULT use_neutron  true
+openstack-config --set  /etc/nova/nova.conf DEFAULT transport_url  rabbit://openstack:123456@10.10.10.69:5672
+openstack-config --set  /etc/nova/nova.conf DEFAULT transport_url  rabbit://openstack:123456@fz-controller01:5672,openstack:123456@fz-controller02:5672,openstack:123456@fz-controller03:5672
+openstack-config --set  /etc/nova/nova.conf DEFAULT my_ip 10.10.10.56
+openstack-config --set  /etc/nova/nova.conf DEFAULT use_neutron  trues
 openstack-config --set  /etc/nova/nova.conf DEFAULT firewall_driver  nova.virt.firewall.NoopFirewallDriver
 openstack-config --set  /etc/nova/nova.conf api auth_strategy  keystone
 openstack-config --set /etc/nova/nova.conf  keystone_authtoken www_authenticate_url  http://10.10.10.69:5000
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_url  http://10.10.10.69:5000
-openstack-config --set  /etc/nova/nova.conf keystone_authtoken memcached_servers  openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken memcached_servers  fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken auth_type  password
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken project_domain_name  Default
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken user_domain_name  Default
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken project_name  service
 openstack-config --set  /etc/nova/nova.conf keystone_authtoken username  nova
-openstack-config --set  /etc/nova/nova.conf keystone_authtoken password  7Pbjqyyf
+openstack-config --set  /etc/nova/nova.conf keystone_authtoken password  56KtIfqc
 openstack-config --set /etc/nova/nova.conf libvirt virt_type  kvm
 openstack-config --set  /etc/nova/nova.conf vnc enabled  true
 openstack-config --set  /etc/nova/nova.conf vnc server_listen  0.0.0.0
@@ -1085,7 +1093,7 @@ openstack-config --set  /etc/nova/nova.conf placement auth_type  password
 openstack-config --set  /etc/nova/nova.conf placement user_domain_name  Default
 openstack-config --set  /etc/nova/nova.conf placement auth_url  http://10.10.10.69:5000/v3
 openstack-config --set  /etc/nova/nova.conf placement username  placement
-openstack-config --set  /etc/nova/nova.conf placement password  58PGTpgC
+openstack-config --set  /etc/nova/nova.conf placement password  56KtIfqc
 
 ```
 - systemctl restart libvirtd.service openstack-nova-compute.service
@@ -1108,14 +1116,14 @@ openstack-config --set  /etc/nova/nova.conf placement password  58PGTpgC
 - mysql -u root -pxxx
 ```shell
 CREATE DATABASE neutron;
-GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY '6ZKOyWXt';
-GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY '6ZKOyWXt';
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'localhost' IDENTIFIED BY '56KtIfqc';
+GRANT ALL PRIVILEGES ON neutron.* TO 'neutron'@'%' IDENTIFIED BY '56KtIfqc';
 flush privileges;
 ```
 - create endpoint
 ```shell
 source admin-openrc
-openstack user create --domain default --password 6ZKOyWXt neutron
+openstack user create --domain default --password 56KtIfqc neutron
 openstack role add --project service --user neutron admin
 openstack service create --name neutron --description "OpenStack Networking" network
 openstack endpoint create --region RegionOne network public http://10.10.10.69:9696
@@ -1135,14 +1143,14 @@ openstack endpoint create --region RegionOne network admin http://10.10.10.69:96
         - cp -a /etc/neutron/neutron.conf{,.bak}
         - grep -Ev '^$|#' /etc/neutron/neutron.conf.bak > /etc/neutron/neutron.conf
 ### neutron server config
-- openstack-config at controller01(10.10.10.51):
+- openstack-config at controller01(10.10.10.61):
 ``` shell
-    openstack-config --set  /etc/neutron/neutron.conf DEFAULT bind_host 10.10.10.51
+    openstack-config --set  /etc/neutron/neutron.conf DEFAULT bind_host 10.10.10.61
     openstack-config --set  /etc/neutron/neutron.conf DEFAULT core_plugin ml2
     openstack-config --set  /etc/neutron/neutron.conf DEFAULT service_plugins router
     openstack-config --set  /etc/neutron/neutron.conf DEFAULT allow_overlapping_ips true
     #直接连接rabbitmq集群
-    openstack-config --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:zp@131421@openstack-controller01:5672,openstack:zp@131421@openstack-controller02:5672,openstack:zp@131421@openstack-controller03:5672
+    openstack-config --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:123456@fz-controller01:5672,openstack:123456@fz-controller02:5672,openstack:123456@fz-controller03:5672
     openstack-config --set  /etc/neutron/neutron.conf DEFAULT auth_strategy  keystone
     openstack-config --set  /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_status_changes  true
     openstack-config --set  /etc/neutron/neutron.conf DEFAULT notify_nova_on_port_data_changes  true
@@ -1159,17 +1167,17 @@ openstack endpoint create --region RegionOne network admin http://10.10.10.69:96
     openstack-config --set  /etc/neutron/neutron.conf DEFAULT min_l3_agents_per_router 1
     openstack-config --set  /etc/neutron/neutron.conf DEFAULT dhcp_agents_per_network 2
 
-    openstack-config --set  /etc/neutron/neutron.conf database connection  mysql+pymysql://neutron:6ZKOyWXt@10.10.10.69/neutron
+    openstack-config --set  /etc/neutron/neutron.conf database connection  mysql+pymysql://neutron:56KtIfqc@10.10.10.69/neutron
 
     openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri  http://10.10.10.69:5000
     openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_url  http://10.10.10.69:5000
-    openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken memcached_servers  openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+    openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken memcached_servers  fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
     openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_type  password
     openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken project_domain_name  default
     openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken user_domain_name  default
     openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken project_name  service
     openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken username  neutron
-    openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken password  6ZKOyWXt
+    openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken password  56KtIfqc
 
     openstack-config --set  /etc/neutron/neutron.conf nova  auth_url http://10.10.10.69:5000
     openstack-config --set  /etc/neutron/neutron.conf nova  auth_type password
@@ -1178,16 +1186,16 @@ openstack endpoint create --region RegionOne network admin http://10.10.10.69:96
     openstack-config --set  /etc/neutron/neutron.conf nova  region_name RegionOne
     openstack-config --set  /etc/neutron/neutron.conf nova  project_name service
     openstack-config --set  /etc/neutron/neutron.conf nova  username nova
-    openstack-config --set  /etc/neutron/neutron.conf nova  password 7Pbjqyyf
+    openstack-config --set  /etc/neutron/neutron.conf nova  password 56KtIfqc
 
     openstack-config --set  /etc/neutron/neutron.conf oslo_concurrency lock_path  /var/lib/neutron/tmp
 ```
-- scp -rp /etc/neutron/neutron.conf openstack-controller02:/etc/neutron/
-- scp -rp /etc/neutron/neutron.conf openstack-controller03:/etc/neutron/
-- openstack-contraller02# sed -i "s#10.10.10.51#10.10.10.52#g" /etc/neutron/neutron.conf
-- openstack-contraller03# sed -i "s#10.10.10.51#10.10.10.53#g" /etc/neutron/neutron.conf
+- scp -rp /etc/neutron/neutron.conf fz-controller02:/etc/neutron/
+- scp -rp /etc/neutron/neutron.conf fz-controller03:/etc/neutron/
+- openstack-contraller02# sed -i "s#10.10.10.61#10.10.10.62#g" /etc/neutron/neutron.conf
+- openstack-contraller03# sed -i "s#10.10.10.61#10.10.10.63#g" /etc/neutron/neutron.conf
 ### ml2 config
-- openstack-controller01:
+- fz-controller01:
     - cp -a /etc/neutron/plugins/ml2/ml2_conf.ini{,.bak}
     - grep -Ev '^$|#' /etc/neutron/plugins/ml2/ml2_conf.ini.bak > /etc/neutron/plugins/ml2/ml2_conf.ini
     - command:
@@ -1200,8 +1208,8 @@ openstack-config --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_flat flat_
 openstack-config --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2_type_vxlan vni_ranges 1:1000
 openstack-config --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enable_ipset  true
 ```
-- scp -rp /etc/neutron/plugins/ml2/ml2_conf.ini openstack-controller02:/etc/neutron/plugins/ml2/ml2_conf.ini
-- scp -rp /etc/neutron/plugins/ml2/ml2_conf.ini openstack-controller03:/etc/neutron/plugins/ml2/ml2_conf.ini
+- scp -rp /etc/neutron/plugins/ml2/ml2_conf.ini fz-controller02:/etc/neutron/plugins/ml2/ml2_conf.ini
+- scp -rp /etc/neutron/plugins/ml2/ml2_conf.ini fz-controller03:/etc/neutron/plugins/ml2/ml2_conf.ini
 ### nova config
 - 修改配置文件/etc/nova/nova.conf
 - 在全部控制节点上配置nova服务与网络节点服务进行交互
@@ -1214,13 +1222,13 @@ openstack-config --set  /etc/nova/nova.conf neutron user_domain_name  default
 openstack-config --set  /etc/nova/nova.conf neutron region_name  RegionOne
 openstack-config --set  /etc/nova/nova.conf neutron project_name  service
 openstack-config --set  /etc/nova/nova.conf neutron username  neutron
-openstack-config --set  /etc/nova/nova.conf neutron password  6ZKOyWXt
+openstack-config --set  /etc/nova/nova.conf neutron password  56KtIfqc
 openstack-config --set  /etc/nova/nova.conf neutron service_metadata_proxy  true
-openstack-config --set  /etc/nova/nova.conf neutron metadata_proxy_shared_secret  6ZKOyWXt
+openstack-config --set  /etc/nova/nova.conf neutron metadata_proxy_shared_secret  56KtIfqc
 ```
 ### sync nova database
 - [root@controller01 ~]# su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
-- verify: mysql -h openstack-controller03 -u neutron -p6ZKOyWXt -e "use neutron;show tables;"
+- verify: mysql -h fz-controller03 -u neutron -p56KtIfqc -e "use neutron;show tables;"
 ### create soft linker for ML2
 - all controller node:
     - ln -s /etc/neutron/plugins/ml2/ml2_conf.ini /etc/neutron/plugin.ini
@@ -1243,21 +1251,21 @@ systemctl status openstack-nova-api.service
     - grep -Ev '^$|#' /etc/neutron/neutron.conf.bak > /etc/neutron/neutron.conf
 - neutron config:
 ```shell
-openstack-config --set  /etc/neutron/neutron.conf DEFAULT bind_host 10.10.10.54
-openstack-config --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:zp@131421@openstack-controller01:5672,openstack:zp@131421@openstack-controller02:5672,openstack:zp@131421@openstack-controller03:5672
+openstack-config --set  /etc/neutron/neutron.conf DEFAULT bind_host 10.10.10.56
+openstack-config --set /etc/neutron/neutron.conf DEFAULT transport_url rabbit://openstack:123456@fz-controller01:5672,openstack:123456@fz-controller02:5672,openstack:123456@fz-controller03:5672
 openstack-config --set  /etc/neutron/neutron.conf DEFAULT auth_strategy keystone 
 #配置RPC的超时时间，默认为60s,可能导致超时异常.设置为180s
 openstack-config --set  /etc/neutron/neutron.conf DEFAULT rpc_response_timeout 180
 
 openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken www_authenticate_uri http://10.10.10.69:5000
 openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_url http://10.10.10.69:5000
-openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken memcached_servers openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken memcached_servers fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken auth_type password
 openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken project_domain_name default
 openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken user_domain_name default
 openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken project_name service
 openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken username neutron
-openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken password 6ZKOyWXt
+openstack-config --set  /etc/neutron/neutron.conf keystone_authtoken password 56KtIfqc
 
 openstack-config --set  /etc/neutron/neutron.conf oslo_concurrency lock_path /var/lib/neutron/tmp
 ```
@@ -1274,7 +1282,7 @@ openstack-config --set  /etc/nova/nova.conf neutron user_domain_name default
 openstack-config --set  /etc/nova/nova.conf neutron region_name RegionOne
 openstack-config --set  /etc/nova/nova.conf neutron project_name service
 openstack-config --set  /etc/nova/nova.conf neutron username neutron
-openstack-config --set  /etc/nova/nova.conf neutron password 6ZKOyWXt
+openstack-config --set  /etc/nova/nova.conf neutron password 56KtIfqc
 ```
 ### plugin and agent config
 #### ML2
@@ -1298,12 +1306,12 @@ openstack-config --set /etc/neutron/plugins/ml2/ml2_conf.ini securitygroup enabl
 ```shell
 #环境无法提供四张网卡；建议生产环境上将每种网络分开配置
 #provider网络对应规划的ens192
-openstack-config --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings  provider:ens192
+openstack-config --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini linux_bridge physical_interface_mappings  provider:eno1
 
 openstack-config --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan enable_vxlan true
 
 #tunnel租户网络（vxlan）vtep端点，这里对应规划的ens192地址，根据节点做相应修改
-openstack-config --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan local_ip 10.10.10.54
+openstack-config --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan local_ip 10.10.10.56
 
 openstack-config --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini vxlan l2_population true
 openstack-config --set /etc/neutron/plugins/ml2/linuxbridge_agent.ini securitygroup enable_security_group  true
@@ -1332,8 +1340,8 @@ openstack-config --set  /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_meta
 - grep -Ev '^$|#' /etc/neutron/metadata_agent.ini.bak > /etc/neutron/metadata_agent.ini
 ```shell
 openstack-config --set /etc/neutron/metadata_agent.ini DEFAULT nova_metadata_host 10.10.10.69
-openstack-config --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret 6ZKOyWXt
-openstack-config --set /etc/neutron/metadata_agent.ini cache memcache_servers openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set /etc/neutron/metadata_agent.ini DEFAULT metadata_proxy_shared_secret 56KtIfqc
+openstack-config --set /etc/neutron/metadata_agent.ini cache memcache_servers fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 ```
 - scp -rp /etc/neutron/metadata_agent.ini openstack-compute02:/etc/neutron/
 #### other config
@@ -1394,7 +1402,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 CACHES = {
     'default': {
          'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-         'LOCATION': 'openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211',
+         'LOCATION': 'fz-controller01:11211,fz-controller02:11211,fz-controller03:11211',
     }
 }
 
@@ -1457,8 +1465,8 @@ OPENSTACK_NEUTRON_NETWORK = {
 TIME_ZONE = "Asia/Shanghai"
 ....
 ```
-- scp -rp /etc/openstack-dashboard/local_settings  openstack-controller02:/etc/openstack-dashboard/
-- scp -rp /etc/openstack-dashboard/local_settings  openstack-controller03:/etc/openstack-dashboard/
+- scp -rp /etc/openstack-dashboard/local_settings  fz-controller02:/etc/openstack-dashboard/
+- scp -rp /etc/openstack-dashboard/local_settings  fz-controller03:/etc/openstack-dashboard/
 ### openstack-dashboard config
 - all controller nodes
 - cp /etc/httpd/conf.d/openstack-dashboard.conf{,.bak}
@@ -1466,8 +1474,8 @@ TIME_ZONE = "Asia/Shanghai"
     - 建立策略文件（policy.json）的软链接，否则登录到dashboard将出现权限错误和显示混乱
 - sed -i '3a WSGIApplicationGroup\ %{GLOBAL}' /etc/httpd/conf.d/openstack-dashboard.conf
     - 赋权，在第3行后新增 WSGIApplicationGroup %{GLOBAL}
-- scp -rp /etc/httpd/conf.d/openstack-dashboard.conf  openstack-controller02:/etc/httpd/conf.d/
-- scp -rp /etc/httpd/conf.d/openstack-dashboard.conf  openstack-controller03:/etc/httpd/conf.d/
+- scp -rp /etc/httpd/conf.d/openstack-dashboard.conf  fz-controller02:/etc/httpd/conf.d/
+- scp -rp /etc/httpd/conf.d/openstack-dashboard.conf  fz-controller03:/etc/httpd/conf.d/
 ```shell
 systemctl restart httpd.service memcached.service
 systemctl enable httpd.service memcached.service
@@ -1492,14 +1500,14 @@ systemctl status httpd.service memcached.service
 mysql -u root -pxxx
 
 create database cinder;
-grant all privileges on cinder.* to 'cinder'@'%' identified by 'PGZoNz7H';
-grant all privileges on cinder.* to 'cinder'@'localhost' identified by 'PGZoNz7H';
+grant all privileges on cinder.* to 'cinder'@'%' identified by '56KtIfqc';
+grant all privileges on cinder.* to 'cinder'@'localhost' identified by '56KtIfqc';
 flush privileges;
 ```
 - openstack:
 ```shell
 source admin-openrc
-openstack user create --domain default --password PGZoNz7H cinder
+openstack user create --domain default --password 56KtIfqc cinder
 openstack role add --project service --user cinder admin
 openstack service create --name cinderv2 --description "OpenStack Block Storage" volumev2
 openstack service create --name cinderv3 --description "OpenStack Block Storage" volumev3
@@ -1518,35 +1526,35 @@ openstack endpoint create --region RegionOne volumev3 admin http://10.10.10.69:8
 - cp -a /etc/cinder/cinder.conf{,.bak}
 - grep -Ev '^$|#' /etc/cinder/cinder.conf.bak > /etc/cinder/cinder.conf
 ```shell
-openstack-config --set /etc/cinder/cinder.conf DEFAULT my_ip 10.10.10.51
+openstack-config --set /etc/cinder/cinder.conf DEFAULT my_ip 10.10.10.61
 openstack-config --set /etc/cinder/cinder.conf DEFAULT auth_strategy keystone
 openstack-config --set /etc/cinder/cinder.conf DEFAULT glance_api_servers http://10.10.10.69:9292
 openstack-config --set /etc/cinder/cinder.conf DEFAULT osapi_volume_listen '$my_ip'
 openstack-config --set /etc/cinder/cinder.conf DEFAULT osapi_volume_listen_port 8776
 openstack-config --set /etc/cinder/cinder.conf DEFAULT log_dir /var/log/cinder
 #直接连接rabbitmq集群
-openstack-config --set /etc/cinder/cinder.conf DEFAULT transport_url rabbit://openstack:zp@131421@openstack-controller01:5672,openstack:zp@131421@openstack-controller02:5672,openstack:zp@131421@openstack-controller03:5672
-openstack-config --set /etc/cinder/cinder.conf  database connection mysql+pymysql://cinder:PGZoNz7H@10.10.10.69/cinder
+openstack-config --set /etc/cinder/cinder.conf DEFAULT transport_url rabbit://openstack:123456@fz-controller01:5672,openstack:123456@fz-controller02:5672,openstack:123456@fz-controller03:5672
+openstack-config --set /etc/cinder/cinder.conf  database connection mysql+pymysql://cinder:56KtIfqc@10.10.10.69/cinder
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  www_authenticate_url  http://10.10.10.69:5000
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  auth_url  http://10.10.10.69:5000
-openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  memcached_servers  openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  memcached_servers  fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  auth_type  password
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  project_domain_name  default
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  user_domain_name  default
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  project_name  service
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  username  cinder
-openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  password PGZoNz7H
+openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken  password 56KtIfqc
 openstack-config --set /etc/cinder/cinder.conf  oslo_concurrency  lock_path  /var/lib/cinder/tmp
 ```
-- scp -rp /etc/cinder/cinder.conf openstack-controller02:/etc/cinder/
-- scp -rp /etc/cinder/cinder.conf openstack-controller03:/etc/cinder/
-- [controller 02]# sed -i "s#10.10.10.51#10.10.10.52#g" /etc/cinder/cinder.conf
-- [controller 03]# sed -i "s#10.10.10.51#10.10.10.53#g" /etc/cinder/cinder.conf
+- scp -rp /etc/cinder/cinder.conf fz-controller02:/etc/cinder/
+- scp -rp /etc/cinder/cinder.conf fz-controller03:/etc/cinder/
+- [controller 02]# sed -i "s#10.10.10.61#10.10.10.62#g" /etc/cinder/cinder.conf
+- [controller 03]# sed -i "s#10.10.10.61#10.10.10.63#g" /etc/cinder/cinder.conf
 - all controller node:
     - openstack-config --set /etc/nova/nova.conf cinder os_region_name RegionOne
 - any controller node:
     - 同步cinder数据库: su -s /bin/sh -c "cinder-manage db sync" cinder
-    - verify: mysql -ucinder -pPGZoNz7H -e "use cinder;show tables;"
+    - verify: mysql -ucinder -p56KtIfqc -e "use cinder;show tables;"
 - all controller node:
 ```shell
 systemctl restart openstack-nova-api.service
@@ -1576,21 +1584,21 @@ pcs resource create openstack-cinder-scheduler systemd:openstack-cinder-schedule
 - cp -a /etc/cinder/cinder.conf{,.bak}
 - grep -Ev '#|^$' /etc/cinder/cinder.conf.bak>/etc/cinder/cinder.conf
 ```shell
-openstack-config --set /etc/cinder/cinder.conf DEFAULT transport_url rabbit://openstack:zp@131421@openstack-controller01:5672,openstack:zp@131421@openstack-controller02:5672,openstack:zp@131421@openstack-controller03:5672
+openstack-config --set /etc/cinder/cinder.conf DEFAULT transport_url rabbit://openstack:123456@fz-controller01:5672,openstack:123456@fz-controller02:5672,openstack:123456@fz-controller03:5672
 openstack-config --set /etc/cinder/cinder.conf  DEFAULT auth_strategy keystone
-openstack-config --set /etc/cinder/cinder.conf  DEFAULT my_ip 10.10.10.xx
+openstack-config --set /etc/cinder/cinder.conf  DEFAULT my_ip 10.10.10.56
 openstack-config --set /etc/cinder/cinder.conf  DEFAULT glance_api_servers http://10.10.10.69:9292
 openstack-config --set /etc/cinder/cinder.conf  DEFAULT enabled_backends ceph
-openstack-config --set /etc/cinder/cinder.conf  database connection mysql+pymysql://cinder:PGZoNz7H@10.10.10.69/cinder
+openstack-config --set /etc/cinder/cinder.conf  database connection mysql+pymysql://cinder:56KtIfqc@10.10.10.69/cinder
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken www_authenticate_uri http://10.10.10.69:5000
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken auth_url http://10.10.10.69:5000
-openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken memcached_servers  openstack-controller01:11211,openstack-controller02:11211,openstack-controller03:11211
+openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken memcached_servers  fz-controller01:11211,fz-controller02:11211,fz-controller03:11211
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken auth_type password
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken project_domain_name default
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken user_domain_name default
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken project_name service
 openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken username cinder
-openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken password PGZoNz7H
+openstack-config --set /etc/cinder/cinder.conf  keystone_authtoken password 56KtIfqc
 openstack-config --set /etc/cinder/cinder.conf  oslo_concurrency lock_path /var/lib/cinder/tmp
 ```
 ### others
@@ -1600,20 +1608,6 @@ systemctl enable openstack-cinder-volume.service target.service
 systemctl status openstack-cinder-volume.service target.service
 ```
 - verify: openstack volume service list
-- PCS resource config at any controller node: vim /etc/haproxy/haproxy.conf
-```shell
- listen cinder_volume
-  bind 10.10.10.69:9292
-  balance  source
-  option  tcpka
-  option  httpchk
-  option  tcplog
-  server openstack-controller01 10.10.10.51:9292 check inter 2000 rise 2 fall 5
-  server openstack-controller02 10.10.10.52:9292 check inter 2000 rise 2 fall 5
-  server openstack-controller03 10.10.10.53:9292 check inter 2000 rise 2 fall 5
-```
-- scp haproxy.conf controller02:/etc/haproxy/haproxy.conf
-- scp haproxy.conf controller03:/etc/haproxy/haproxy.conf
 
 # 十. OpenStack integrate with Ceph
 ## Intro
@@ -1641,14 +1635,14 @@ systemctl status openstack-cinder-volume.service target.service
     - cephadm install ceph-common
 - copy ceph keyring and config to openstack nodes
 ```shell
-scp -rp /etc/ceph/ceph.client.admin.keyring openstack-controller01:/etc/ceph/
-scp -rp /etc/ceph/ceph.client.admin.keyring openstack-controller02:/etc/ceph/
-scp -rp /etc/ceph/ceph.client.admin.keyring openstack-controller03:/etc/ceph/
+scp -rp /etc/ceph/ceph.client.admin.keyring fz-controller01:/etc/ceph/
+scp -rp /etc/ceph/ceph.client.admin.keyring fz-controller02:/etc/ceph/
+scp -rp /etc/ceph/ceph.client.admin.keyring fz-controller03:/etc/ceph/
 scp -rp /etc/ceph/ceph.client.admin.keyring openstack-compute01:/etc/ceph/
 scp -rp /etc/ceph/ceph.client.admin.keyring openstack-compute02:/etc/ceph/
-scp -rp /etc/ceph/ceph.conf openstack-controller01:/etc/ceph/ceph.conf
-scp -rp /etc/ceph/ceph.conf openstack-controller02:/etc/ceph/ceph.conf
-scp -rp /etc/ceph/ceph.conf openstack-controller03:/etc/ceph/ceph.conf
+scp -rp /etc/ceph/ceph.conf fz-controller01:/etc/ceph/ceph.conf
+scp -rp /etc/ceph/ceph.conf fz-controller02:/etc/ceph/ceph.conf
+scp -rp /etc/ceph/ceph.conf fz-controller03:/etc/ceph/ceph.conf
 scp -rp /etc/ceph/ceph.conf openstack-compute01:/etc/ceph/ceph.conf
 scp -rp /etc/ceph/ceph.conf openstack-compute02:/etc/ceph/ceph.conf
 ```
@@ -1699,19 +1693,19 @@ ceph osd pool delete volumes volumes --yes-i-really-really-mean-it
     - ceph auth get-or-create client.cinder mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=openstack-volumes, allow rwx pool=openstack-vms, allow rx pool=openstack-images'
         - out: [client.cinder]    key = AQCFXUFhsL9WExAA09N4gAb5UUS4r1eH+PwTwQ==
 - push the client.glance to controller nodes
-    - ceph auth get-or-create client.glance | ssh root@openstack-controller01 tee /etc/ceph/ceph.client.glance.keyring
-    - ceph auth get-or-create client.glance | ssh root@openstack-controller02 tee /etc/ceph/ceph.client.glance.keyring
-    - ceph auth get-or-create client.glance | ssh root@openstack-controller03 tee /etc/ceph/ceph.client.glance.keyring
-    - ssh root@openstack-controller01 chown glance:glance /etc/ceph/ceph.client.glance.keyring
-    - ssh root@openstack-controller02 chown glance:glance /etc/ceph/ceph.client.glance.keyring
-    - ssh root@openstack-controller03 chown glance:glance /etc/ceph/ceph.client.glance.keyring
+    - ceph auth get-or-create client.glance | ssh root@fz-controller01 tee /etc/ceph/ceph.client.glance.keyring
+    - ceph auth get-or-create client.glance | ssh root@fz-controller02 tee /etc/ceph/ceph.client.glance.keyring
+    - ceph auth get-or-create client.glance | ssh root@fz-controller03 tee /etc/ceph/ceph.client.glance.keyring
+    - ssh root@fz-controller01 chown glance:glance /etc/ceph/ceph.client.glance.keyring
+    - ssh root@fz-controller02 chown glance:glance /etc/ceph/ceph.client.glance.keyring
+    - ssh root@fz-controller03 chown glance:glance /etc/ceph/ceph.client.glance.keyring
 - push the client.cinder to comtroller nodes and compute nodes
-    - ceph auth get-or-create client.cinder | ssh root@openstack-controller01 tee /etc/ceph/ceph.client.cinder.keyring
-    - ceph auth get-or-create client.cinder | ssh root@openstack-controller02 tee /etc/ceph/ceph.client.cinder.keyring
-    - ceph auth get-or-create client.cinder | ssh root@openstack-controller03 tee /etc/ceph/ceph.client.cinder.keyring
-    - ssh root@openstack-controller01 chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
-    - ssh root@openstack-controller02 chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
-    - ssh root@openstack-controller03 chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
+    - ceph auth get-or-create client.cinder | ssh root@fz-controller01 tee /etc/ceph/ceph.client.cinder.keyring
+    - ceph auth get-or-create client.cinder | ssh root@fz-controller02 tee /etc/ceph/ceph.client.cinder.keyring
+    - ceph auth get-or-create client.cinder | ssh root@fz-controller03 tee /etc/ceph/ceph.client.cinder.keyring
+    - ssh root@fz-controller01 chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
+    - ssh root@fz-controller02 chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
+    - ssh root@fz-controller03 chown cinder:cinder /etc/ceph/ceph.client.cinder.keyring
 
 ### added to Libvirt
 - nova-compute 所在节点需要将client.cinder用户的秘钥文件存储到libvirt中；当基于ceph后端的cinder卷被attach到虚拟机实例时，libvirt需要用到该秘钥以访问ceph集群；
@@ -1806,12 +1800,12 @@ openstack-config --set /etc/cinder/cinder.conf ceph volume_backend_name ceph
 +------------------+-----------------------------+------+---------+-------+----------------------------+
 | Binary           | Host                        | Zone | Status  | State | Updated At                 |
 +------------------+-----------------------------+------+---------+-------+----------------------------+
-| cinder-scheduler | openstack-controller01      | nova | enabled | up    | 2021-09-27T01:33:36.000000 |
-| cinder-scheduler | openstack-controller03      | nova | enabled | up    | 2021-09-27T01:33:35.000000 |
-| cinder-scheduler | openstack-controller02      | nova | enabled | up    | 2021-09-27T01:33:29.000000 |
-| cinder-volume    | openstack-controller01@ceph | nova | enabled | up    | 2021-09-27T01:33:34.000000 |
-| cinder-volume    | openstack-controller02@ceph | nova | enabled | up    | 2021-09-27T01:33:29.000000 |
-| cinder-volume    | openstack-controller03@ceph | nova | enabled | up    | 2021-09-27T01:33:35.000000 |
+| cinder-scheduler | fz-controller01      | nova | enabled | up    | 2021-09-27T01:33:36.000000 |
+| cinder-scheduler | fz-controller03      | nova | enabled | up    | 2021-09-27T01:33:35.000000 |
+| cinder-scheduler | fz-controller02      | nova | enabled | up    | 2021-09-27T01:33:29.000000 |
+| cinder-volume    | fz-controller01@ceph | nova | enabled | up    | 2021-09-27T01:33:34.000000 |
+| cinder-volume    | fz-controller02@ceph | nova | enabled | up    | 2021-09-27T01:33:29.000000 |
+| cinder-volume    | fz-controller03@ceph | nova | enabled | up    | 2021-09-27T01:33:35.000000 |
 +------------------+-----------------------------+------+---------+-------+----------------------------+
 ```
 ### test
@@ -1900,7 +1894,7 @@ openstack-config --set /etc/nova/nova.conf libvirt hw_disk_discard unmap
 34:listen_tcp = 1
 52:tcp_port = "16509"
 #取消注释,并修改监听端口
-65:listen_addr = "10.10.10.54"
+65:listen_addr = "10.10.10.56"
 #取消注释,同时取消认证
 167:auth_tcp = "none"
 
@@ -1913,11 +1907,11 @@ openstack-config --set /etc/nova/nova.conf libvirt hw_disk_discard unmap
 167:auth_tcp = "none"
 ```
 - vim /etc/sysconfig/libvirtd: LIBVIRTD_ARGS="--listen"
-- 免密互相登录：
+- 免密互相登录：下
     - yum install sshpass -y
     - usermod  -s /bin/bash nova
     - passwd nova
-    - su nova
+    - su - nova
     - ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ''
     - ssh-copy-id -i openstack-compute0x
 - systemctl mask libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket libvirtd-tls.socket libvirtd-tcp.socket

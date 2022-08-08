@@ -210,6 +210,93 @@ ceph-mon-03
   - 这里我们使用了rbd（块设备），pool 只能对一种类型进行 enable，另外两种类型是cephfs（文件系统），rgw（对象存储）
 - ceph osd pool application enable my_nfs_pool cephfs
 
+# config SSD cache
+- ceph osd tree
+```shell
+ID  CLASS  WEIGHT    TYPE NAME            STATUS  REWEIGHT  PRI-AFF
+-1         20.92267  root default
+-3          8.18709      host pve-ceph01
+ 5    hdd   7.27739          osd.5            up   1.00000  1.00000
+ 0    ssd   0.90970          osd.0            up   1.00000  1.00000
+-5          8.18709      host pve-ceph02
+ 6    hdd   7.27739          osd.6            up   1.00000  1.00000
+ 1    ssd   0.90970          osd.1            up   1.00000  1.00000
+-7          4.54849      host pve-ceph03
+ 3    hdd   1.81940          osd.3            up   1.00000  1.00000
+ 4    hdd   1.81940          osd.4            up   1.00000  1.00000
+ 2    ssd   0.90970          osd.2            up   1.00000  1.00000
+```
+
+- ceph osd crush class ls
+```shell
+[
+    "ssd",
+    "hdd"
+]
+```
+
+- ceph osd crush rule create-replicated ssd_rule default host ssd
+- ceph osd crush rule list
+```shell
+replicated_rule
+ssd_rule
+```
+
+- create pools:
+  - `ceph osd pool create pve-ceph-rbd 64 64`
+  - `ceph osd pool create cache 64 64 ssd_rule`
+## config cache
+  - cache 放置到 data 前: `ceph osd tier add pve-ceph-rbd cache`
+  - cache mode to writeback: `ceph osd tier cache-mode cache writeback`
+  - `ceph osd tier set-overlay pve-ceph-rbd cache`
+  - verify: `ceph osd dump | egrep 'pve-ceph-rbd|cache'`
+## 缓冲池相关参数:
+1. 命中集合过滤器，默认为 Bloom 过滤器
+```shell
+ceph osd pool set cache hit_set_type bloom
+ceph osd pool set cache hit_set_count 1
+# 设置 Bloom 过滤器的误报率
+ceph osd pool set cache hit_set_fpp 0.15
+# 设置缓存有效期,单位：秒
+ceph osd pool set cache hit_set_period 3600   # 1 hour
+```
+
+2. 设置当缓存池中的数据达到多少个字节或者多少个对象时，缓存分层代理就开始从缓存池刷新对象至后端存储池并驱逐
+```shell
+# 当缓存池中的数据量达到1TB时开始刷盘并驱逐
+ceph osd pool set cache target_max_bytes 1099511627776
+
+# 当缓存池中的对象个数达到100万时开始刷盘并驱逐
+ceph osd pool set cache target_max_objects 10000000
+```
+
+3. 定义缓存层将对象刷至存储层或者驱逐的时间：
+```shell
+ceph osd pool set cache cache_min_flush_age 600
+ceph osd pool set cache cache_min_evict_age 600 
+```
+
+4. 定义当缓存池中的脏对象（被修改过的对象）占比达到多少(百分比)时，缓存分层代理开始将object从缓存层刷至存储层
+  - `ceph osd pool set cache cache_target_dirty_ratio 0.4`
+5. 当缓存池的饱和度达到指定的值，缓存分层代理将驱逐对象以维护可用容量，此时会将未修改的（干净的）对象刷盘：
+  - `ceph osd pool set cache cache_target_full_ratio 0.8`
+6. 设置在处理读写操作时候，检查多少个 HitSet，检查结果将用于决定是否异步地提升对象（即把对象从冷数据升级为热数据，放入快取池）。它的取值应该在 0 和 hit_set_count 之间， 如果设置为 0 ，则所有的对象在读取或者写入后，将会立即提升对象；如果设置为 1 ，就只检查当前 HitSet ，如果此对象在当前 HitSet 里就提升它，否则就不提升。 设置为其它值时，就要挨个检查此数量的历史 HitSet ，如果此对象出现在 min_read_recency_for_promote 个 HitSet 里的任意一个，那就提升它。
+```shell
+ceph osd pool set cache min_read_recency_for_promote 1
+ceph osd pool set cache min_write_recency_for_promote 1
+```
+
+## remove cache
+1. 将缓存模式更改为转发，以便新的和修改的对象刷新至后端存储池：
+  - ceph osd tier cache-mode cache forward --yes-i-really-mean-it
+2. 查看缓存池以确保所有的对象都被刷新（这可能需要点时间）：
+  - rados -p cache ls 
+3. 如果缓存池中仍然有对象，也可以手动刷新：
+  - rados -p cache cache-flush-evict-all
+4. 删除覆盖层，以使客户端不再将流量引导至缓存：
+  - ceph osd tier remove-overlay pve-ceph-rbd
+5. 解除存储池与缓存池的绑定：
+  - ceph osd tier remove pve-ceph-rbd cache
 
 # trouble shooting
 ## ceph-mon-01 mon down
@@ -261,3 +348,21 @@ docker.io/ceph/ceph:v15
 - remove mds:
   - ceph mds fail xxx
   - ceph mds rm xxx
+- mgr:
+  - ceph config-key set mgr/dashboard/server_addr <IP/hostname>
+  - ceph config-key set mgr/dashboard/server_port <port>
+  - ceph mgr services
+
+- config:
+  - ceph osd pool get <pool name> min_size
+  - ceph osd pool get <pool name> size
+  - ceph osd pool set <pool name> size x
+
+
+# config dashboard
+- apt install ceph-mgr-dashboard
+- ceph mgr module enable dashboard
+- ceph dashboard create-self-signed-cert
+- ceph dashboard ac-user-create admin -i xx administrator
+- ceph mgr services
+

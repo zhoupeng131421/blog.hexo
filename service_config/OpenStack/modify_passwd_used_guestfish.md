@@ -15,8 +15,8 @@ categories: 服务配置
 ## modify default passwd for root
 - generate the cryptograph of "123456"
     - `openssl passwd -1 123456`
-    - $1$nZbhzwVz$cGfRsCZdzByy.FhzbnQ/W.
-- `guestfish CentOS-7-x86_64-GenericCloud-2009.qcow2`
+    - $1$iaWUvCz6$ZLEDOGk6QLdGFY9CSg4tV1
+- `guestfish --rw -a CentOS-7-x86_64-GenericCloud-2009.qcow2`
 ```shell
 ><fs> run
  100% ... ...
