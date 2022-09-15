@@ -28,7 +28,7 @@ do_qa_staging
 do_build
 do_rebuild
 ```
-    - do_compile 这些函数都是在 OpenEmbedded 的 classes 中定义的，而 bitbake 中并没有对这些进行定义。这说明，bitbake 只是 OE 更底层的一个工具，也就是说，OE 是基于 bitbake 架构来完成的。
+- do_compile 这些函数都是在 OpenEmbedded 的 classes 中定义的，而 bitbake 中并没有对这些进行定义。这说明，bitbake 只是 OE 更底层的一个工具，也就是说，OE 是基于 bitbake 架构来完成的。
 
 - BitBake 根据预先定义的元数据执行任务，这些元数据定义了执行任务所需的变量，执行任务的过程，以及任务之间的依赖关系，它们存储在 recipe(.bb)、append(.bbappend)、configuration(.conf)、include(.inc) 和 class(.bbclass) 文件中。
 - BitBake 包含一个抓取器，用于从不同的位置获取源码，例如本地文件、源码控制器(git)、网站等。

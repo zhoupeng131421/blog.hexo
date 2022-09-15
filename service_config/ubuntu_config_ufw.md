@@ -44,9 +44,38 @@ sudo ufw allow proto tcp from 139.24.118.0/25 to 139.24.118.44 port 443     # ht
 sudo ufw allow proto tcp from 139.24.118.0/25 to 139.24.118.44 port 139     # samba
 sudo ufw allow proto tcp from 139.24.118.0/25 to 139.24.118.44 port 445     # samba
 
+sudo ufw route allow in on eth1 out on eth2
+sudo ufw route allow in on eth0 out on eth1 to 12.34.45.67 port 80 proto tcp
+
 sudo ufw allow proto tcp from 139.23.144.192/27 port 443 to 139.24.118.44
 ```
 
 ## command
 - sudo ufw status numbered
 - sudo ufw delete [num]
+
+## NAT
+1. `ufw default allow forward` or vim /etc/default/ufw: `DEFAULT_FORWARD_POLICY="ACCEPT"`
+2. vim /etc/ufw/ssyctl.conf: `net/ipv4/ip_forward=1`
+3. `ufw route allow in on enp6s16 out on enp6s18` or
+vim /etc/ufw/befroe.rules:
+```shell
+*nat
+:PREROUTING - [0:0]
+:POSTROUTING - [0:0]
+
+# enp6s16:2089 --> 192.168.15.20:3389
+#-A PREROUTING -p tcp --dport exposed_port -j REDIRECT --to-port effective_port
+-A PREROUTING -i enp6s16 -p tcp --dport 2089 -j DNAT --to-destination 192.168.15.20:3389
+-A POSTROUTING -s 192.168.15.0/24 -o enp6s16 -j MASQUERADE
+
+COMMIT
+```
+
+4. `ufw disable && ufw enable` or `ufw reload`
+
+
+
+- port scan tool
+    - nmap
+    - zenmap (nmap GUI version)

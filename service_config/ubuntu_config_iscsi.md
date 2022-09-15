@@ -43,6 +43,7 @@ categories: 服务配置
 - mount: `mount -t ext4 /dev/sdb /mnt`
 - umount: `umount /mnt`
 - 断开 target: `iscsiadm -m node -p 192.168.1.xx --logout`
+- 解除挂载： `iscsiadm -m node –T iqn.1997-05.com.test:raid -p 192.168.1.x:3260 –u`
 - 设置开机自动挂载 target: `iscsiadm -m node –T iqn.2020-10.com.xxx -p 192.168.1.xxx:3260 --op update -n node.startup -v automatic`
 - 设置开机自动挂载 disk:
     - vim /etc/fstab:

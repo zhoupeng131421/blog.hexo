@@ -1,6 +1,6 @@
 ---
 title: CentOS7 samba winbind
-date: 2020-11-9
+date: 2021-11-9
 tags: [samba, centos]
 categories: 服务配置
 ---
