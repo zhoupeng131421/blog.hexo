@@ -1,10 +1,12 @@
 ---
 title: CentOS7 config xrdp
 date: 2020-10-9
-tags: [xrdp, centos]
+tags: [xrdp, centos, ubuntu]
 categories: 服务配置
 ---
 
+
+## CentOS
 - `sudo yum install epel-release -y`
 - `sudo yum install xrdp -y`
 - `sudo yum install tigervnc-server -y`
@@ -21,3 +23,18 @@ categories: 服务配置
 - verify:
     - `sudo systemctl status xrdp.service`
     - `sudo ss -antup|grep xrdp`
+
+## Ubuntu
+- `sudo apt install xrdp`
+- `sudo adduser xrdp ssl-cert`
+- `sudo systemctl restart xrdp`
+- `sudo vim /etc/xrd/startwm.sh`
+```shell
+fi
+
+unset DBUS_SESSION_BUS_ADDRESS
+unset XDG_RUNTIME_DIR
+.$HOME/.profile
+
+if test -r /etc/profile; then
+```

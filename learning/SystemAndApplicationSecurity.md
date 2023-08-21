@@ -1,0 +1,16 @@
+- Malicious Code and Activity
+    - Key Concepts
+        - Vector: mechanism for the transmission of malcode, this is how we actually are going to get infected.
+            - 传播途径
+        - Payload: the primary action of the attack.
+            - 攻击的主要影响
+        - Virus: it's going to require something to help it move from place to place.
+            - 复制、传播、隐藏
+        - Logic bomb: A logic bomb is a Trojan executing when some sort of specify condition is met.
+            - 定时炸弹、运维离职前扔一个
+        - Trojan: A Trojan is malcode, malware, malicious code designed and disguised specifically to look like legitimate software.
+        - Dropper: used to install malicious code
+        - Keylogger: used to capture data in system
+        - Bot: a machine that is remotely controlled
+        - Worm: self replication program
+    - Polymorphic Viruses: assume many (poly) shapes and forms (morphic) by encrypting code differently with each infection.

@@ -236,10 +236,14 @@ ID  CLASS  WEIGHT    TYPE NAME            STATUS  REWEIGHT  PRI-AFF
 ```
 
 - ceph osd crush rule create-replicated ssd_rule default host ssd
+- ceph osd crush rule create-replicated rule-nvme default host nvme
+- ceph osd crush rule create-replicated rule-hdd default host hdd
 - ceph osd crush rule list
 ```shell
 replicated_rule
 ssd_rule
+rule-nvme
+rule-hdd
 ```
 
 - create pools:
@@ -366,3 +370,7 @@ docker.io/ceph/ceph:v15
 - ceph dashboard ac-user-create admin -i xx administrator
 - ceph mgr services
 
+# arch warning
+- ceph crash ls-new
+- ceph crash archive <crash-id>
+- ceph crash archive-all

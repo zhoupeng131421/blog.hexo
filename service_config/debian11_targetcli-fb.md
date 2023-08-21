@@ -100,3 +100,8 @@ Configuration saved to /etc/rtslib-fb-target/saveconfig.json
 -  systemctl restart iscsid.service
 - iscsiadm -m session
 - iscsiadm -m node -T iqn.2022-06.md60dzzc.ad001.siemens.net:pve.target01 -p 192.168.1.32:3260 -u
+
+```txt
+sudo iscsiadm -m session
+sudo iscsiadm -m node -T TrueNAS.2023-05.cnfoc.ad001.siemens.net:pve -p 172.183.10.30:3260 -u
+```
