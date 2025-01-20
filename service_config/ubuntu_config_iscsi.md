@@ -58,3 +58,16 @@ node.session.auth.password = xxx
 ```
 - `iscsiadm -m node -T iqn.2020-10.com.siemens.fz:gitlabServerBackup -p 139.24.118.51:3260 -o update --name=node.session.auth.authmethod --value=CHAP`
     - --value根据配置的`authmethod`决定
+
+
+
+- iscsiadm -m node
+    - 列出所有发现的 target
+- iscsiadm -m node -o delete all
+    - 删除所有target
+- iscsiadm -m node -T iqn.xxx:x -o delete
+    - 删除某条target
+- iscsiadm -m node -p 10.10.10.x -T iqn.xx.xx.xx:xx -u
+    - 登出单条target
+    - iscsiadm -m node -p 172.183.10.43 -T iqn.2024-2.cnfocpveiscsi.ad001.siemens.net:pve -u
+

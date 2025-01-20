@@ -103,5 +103,5 @@ Configuration saved to /etc/rtslib-fb-target/saveconfig.json
 
 ```txt
 sudo iscsiadm -m session
-sudo iscsiadm -m node -T TrueNAS.2023-05.cnfoc.ad001.siemens.net:pve -p 172.183.10.30:3260 -u
+iscsiadm -m node -p 172.183.10.43 -T iqn.2024-2.cnfocpveiscsi.ad001.siemens.net:pve -u
 ```
